@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import '../main.dart';
 import 'game_hud_controller.dart';
 import 'rts_game.dart';
+import 'skirmish/faction.dart';
+import 'skirmish/unit_type.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key, required this.seedFactory});
@@ -89,37 +91,44 @@ class _GameScreenState extends State<GameScreen> {
                         decoration: _panelDecoration(),
                         child: Padding(
                           padding: const EdgeInsets.all(14),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              Wrap(
+                                spacing: 12,
+                                runSpacing: 12,
+                                crossAxisAlignment: WrapCrossAlignment.center,
                                 children: [
-                                  Text(
-                                    'Hexfront Prototype',
-                                    style: textTheme.headlineSmall,
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Hexfront Prototype',
+                                        style: textTheme.headlineSmall,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      SelectableText(
+                                        'Seed: ${_hudController.seed}',
+                                        key: const Key('seed-text'),
+                                        style: textTheme.bodyMedium,
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 4),
-                                  SelectableText(
-                                    'Seed: ${_hudController.seed}',
-                                    key: const Key('seed-text'),
-                                    style: textTheme.bodyMedium,
+                                  IconButton(
+                                    onPressed: _copySeedToClipboard,
+                                    tooltip: 'Seed kopieren',
+                                    icon: const Icon(Icons.copy_rounded),
+                                  ),
+                                  FilledButton.icon(
+                                    key: const Key('regenerate-button'),
+                                    onPressed: _regenerate,
+                                    icon: const Icon(Icons.autorenew_rounded),
+                                    label: const Text('Neue Karte'),
                                   ),
                                 ],
                               ),
-                              const SizedBox(width: 16),
-                              IconButton(
-                                onPressed: _copySeedToClipboard,
-                                tooltip: 'Seed kopieren',
-                                icon: const Icon(Icons.copy_rounded),
-                              ),
-                              const SizedBox(width: 8),
-                              FilledButton.icon(
-                                key: const Key('regenerate-button'),
-                                onPressed: _regenerate,
-                                icon: const Icon(Icons.autorenew_rounded),
-                                label: const Text('Neue Karte'),
-                              ),
+                              const SizedBox(height: 12),
+                              _TopBattleBar(controller: _hudController, game: _game),
                             ],
                           ),
                         ),
@@ -163,6 +172,24 @@ class _GameScreenState extends State<GameScreen> {
                                           'Bewegung: ${selectedTile.movementText}',
                                           style: textTheme.bodyMedium,
                                         ),
+                                        if (selectedTile.unitType != null) ...[
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            'Einheit: ${selectedTile.unitOwner?.displayName} ${selectedTile.unitType?.displayName} (${selectedTile.unitHealth} HP)',
+                                            style: textTheme.bodyMedium,
+                                          ),
+                                          Text(
+                                            selectedTile.unitReady ? 'Status: Einsatzbereit' : 'Status: Bereits gehandelt',
+                                            style: textTheme.bodyMedium,
+                                          ),
+                                        ],
+                                        if (selectedTile.buildingType != null) ...[
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            'Gebäude: ${selectedTile.buildingOwner?.displayName} ${selectedTile.buildingType?.displayName} (${selectedTile.buildingHealth} HP)',
+                                            style: textTheme.bodyMedium,
+                                          ),
+                                        ],
                                       ],
                                     ),
                             ),
@@ -190,6 +217,53 @@ class _GameScreenState extends State<GameScreen> {
           color: Color(0x66000000),
           blurRadius: 22,
           offset: Offset(0, 10),
+        ),
+      ],
+    );
+  }
+}
+
+class _TopBattleBar extends StatelessWidget {
+  const _TopBattleBar({required this.controller, required this.game});
+
+  final GameHudController controller;
+  final RtsGame game;
+
+  @override
+  Widget build(BuildContext context) {
+    final match = controller.matchState;
+    if (match == null) return const SizedBox.shrink();
+
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: [
+        Chip(label: Text('Turn ${match.turn}')),
+        Chip(label: Text(match.activeFaction == Faction.player ? 'Your turn' : 'Enemy turn')),
+        Chip(label: Text('Credits ${match.playerCredits}')),
+        Chip(label: Text('Enemy ${match.enemyCredits}')),
+        if (match.statusMessage case final status?)
+          Chip(label: Text(status)),
+        FilledButton.tonalIcon(
+          onPressed: match.activeFaction == Faction.player && !match.isFinished
+              ? () => game.recruitUnit(UnitType.scout)
+              : null,
+          icon: const Icon(Icons.directions_run_rounded),
+          label: const Text('Scout 3'),
+        ),
+        FilledButton.tonalIcon(
+          onPressed: match.activeFaction == Faction.player && !match.isFinished
+              ? () => game.recruitUnit(UnitType.tank)
+              : null,
+          icon: const Icon(Icons.shield_rounded),
+          label: const Text('Tank 5'),
+        ),
+        FilledButton.icon(
+          onPressed: match.activeFaction == Faction.player && !match.isFinished
+              ? game.endTurn
+              : null,
+          icon: const Icon(Icons.skip_next_rounded),
+          label: const Text('End turn'),
         ),
       ],
     );

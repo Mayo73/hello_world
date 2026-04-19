@@ -5,6 +5,13 @@ import 'package:flame/game.dart';
 import 'package:flame/extensions.dart';
 
 import 'game_hud_controller.dart';
+import 'skirmish/building_type.dart';
+import 'skirmish/faction.dart';
+import 'skirmish/skirmish_engine.dart';
+import 'skirmish/skirmish_building.dart';
+import 'skirmish/skirmish_match_state.dart';
+import 'skirmish/skirmish_unit.dart';
+import 'skirmish/unit_type.dart';
 import 'world/hex_coord.dart';
 import 'world/tile_biome.dart';
 import 'world/world_gen_config.dart';
@@ -29,8 +36,10 @@ class RtsGame extends FlameGame {
   final GameHudController hudController;
   final WorldGenConfig _config;
   final WorldMapGenerator _generator;
+  final SkirmishEngine _skirmishEngine = const SkirmishEngine();
 
   late WorldMapData _worldMap;
+  late SkirmishMatchState _matchState;
   int _seed;
   double _zoom = 1;
   Offset _cameraOffset = Offset.zero;
@@ -41,6 +50,7 @@ class RtsGame extends FlameGame {
   bool _worldReady = false;
 
   WorldMapData get worldMap => _worldMap;
+  SkirmishMatchState get matchState => _matchState;
   double get zoom => _zoom;
 
   @override
@@ -76,8 +86,30 @@ class RtsGame extends FlameGame {
     _worldMap = _worldMap.withSelectedCoord(coord);
     final tile = _worldMap.tileAt(coord);
     if (tile != null) {
-      hudController.updateSelectedTile(tile);
+      final unit = _unitAt(coord);
+      final building = _buildingAt(coord);
+      if (unit?.owner == Faction.player && _matchState.activeFaction == Faction.player) {
+        _matchState = _skirmishEngine.selectUnit(_matchState, unit!.id);
+      } else if (_matchState.selectedUnit != null) {
+        _matchState = _skirmishEngine.moveOrAttackSelectedUnit(_matchState, coord);
+      } else {
+        _matchState = _skirmishEngine.clearSelection(_matchState);
+      }
+      _pushHudSelection(tileAt: tile, unit: _unitAt(coord), building: _buildingAt(coord));
+      hudController.updateMatchState(_matchState);
     }
+  }
+
+  void recruitUnit(UnitType type) {
+    _matchState = _skirmishEngine.recruitUnit(_matchState, type);
+    hudController.updateMatchState(_matchState);
+    _syncSelectionFromMatch();
+  }
+
+  void endTurn() {
+    _matchState = _skirmishEngine.endTurn(_matchState, _worldMap);
+    hudController.updateMatchState(_matchState);
+    _syncSelectionFromMatch();
   }
 
   void handleScaleStart(Offset localFocalPoint) {
@@ -158,15 +190,25 @@ class RtsGame extends FlameGame {
       _drawTile(canvas, tile);
     }
 
+    for (final building in _matchState.buildings) {
+      _drawBuilding(canvas, building.coord, building.owner, building.type);
+    }
+
+    for (final unit in _matchState.units) {
+      _drawUnit(canvas, unit);
+    }
+
     canvas.restore();
   }
 
   void _loadSeed(int seed) {
     _seed = seed;
     _worldMap = _generator.generate(seed: seed, config: _config);
+    _matchState = _skirmishEngine.createInitialState(_worldMap);
     _worldReady = true;
     hudController.setSeed(seed);
     hudController.clearSelection();
+    hudController.updateMatchState(_matchState);
 
     if (_hasViewport) {
       _resetCamera();
@@ -214,6 +256,91 @@ class RtsGame extends FlameGame {
         Paint()..color = const Color(0xCCFFF1B2),
       );
     }
+  }
+
+  void _drawBuilding(
+    Canvas canvas,
+    HexCoord coord,
+    Faction owner,
+    BuildingType type,
+  ) {
+    final center = coord.toPixel(hexRadius);
+    final color = owner == Faction.player
+        ? const Color(0xFF6ED3FF)
+        : const Color(0xFFFF7B7B);
+    final rect = Rect.fromCenter(
+      center: center,
+      width: hexRadius * 1.0,
+      height: hexRadius * 0.85,
+    );
+    final paint = Paint()..color = color;
+    switch (type) {
+      case BuildingType.headquarters:
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(rect, const Radius.circular(8)),
+          paint,
+        );
+      case BuildingType.mine:
+        canvas.drawOval(rect, paint);
+      case BuildingType.barracks:
+        canvas.drawRect(rect, paint);
+    }
+  }
+
+  void _drawUnit(Canvas canvas, SkirmishUnit unit) {
+    final center = unit.coord.toPixel(hexRadius);
+    final fill = Paint()
+      ..color = unit.owner == Faction.player
+          ? const Color(0xFFF6D37B)
+          : const Color(0xFFFFA259);
+    final outline = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = unit.id == _matchState.selectedUnitId ? 3 : 1.4
+      ..color = unit.id == _matchState.selectedUnitId
+          ? const Color(0xFFFFFFFF)
+          : const Color(0xAA10161B);
+
+    final radius = unit.type == UnitType.scout ? hexRadius * 0.22 : hexRadius * 0.3;
+    canvas.drawCircle(center, radius, fill);
+    canvas.drawCircle(center, radius, outline);
+    if (!unit.hasActed && unit.owner == Faction.player && _matchState.activeFaction == Faction.player) {
+      canvas.drawCircle(center, radius + 6, Paint()..color = const Color(0x33FFFFFF));
+    }
+  }
+
+  void _pushHudSelection({required WorldTile tileAt, SkirmishUnit? unit, SkirmishBuilding? building}) {
+    hudController.updateSelectedTile(
+      tileAt,
+      unitOwner: unit?.owner,
+      unitType: unit?.type,
+      unitHealth: unit?.health,
+      unitReady: unit != null && !unit.hasActed,
+      buildingOwner: building?.owner,
+      buildingType: building?.type,
+      buildingHealth: building?.health,
+    );
+  }
+
+  void _syncSelectionFromMatch() {
+    final selectedCoord = _worldMap.selectedCoord;
+    if (selectedCoord == null) return;
+    final tile = _worldMap.tileAt(selectedCoord);
+    if (tile == null) return;
+    _pushHudSelection(tileAt: tile, unit: _unitAt(selectedCoord), building: _buildingAt(selectedCoord));
+  }
+
+  SkirmishUnit? _unitAt(HexCoord coord) {
+    for (final unit in _matchState.units) {
+      if (unit.coord == coord && !unit.isDestroyed) return unit;
+    }
+    return null;
+  }
+
+  SkirmishBuilding? _buildingAt(HexCoord coord) {
+    for (final building in _matchState.buildings) {
+      if (building.coord == coord && !building.isDestroyed) return building;
+    }
+    return null;
   }
 
   Path _hexPath(Offset center, double radius) {
