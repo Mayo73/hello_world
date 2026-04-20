@@ -84,6 +84,7 @@ class _GameScreenState extends State<GameScreen> {
                 animation: _hudController,
                 builder: (context, _) {
                   final selectedTile = _hudController.selectedTile;
+                  final match = _hudController.matchState;
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -133,6 +134,43 @@ class _GameScreenState extends State<GameScreen> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 12),
+                      if (match != null)
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: DecoratedBox(
+                            decoration: _panelDecoration(),
+                            child: Padding(
+                              padding: const EdgeInsets.all(14),
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 380),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      match.isFinished
+                                          ? (match.winner == Faction.player
+                                              ? 'Demo won'
+                                              : 'Demo lost')
+                                          : 'How to play this demo',
+                                      style: textTheme.titleMedium,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      match.isFinished
+                                          ? (match.winner == Faction.player
+                                              ? 'You broke the enemy HQ. Regenerate the map or keep experimenting with unit placement.'
+                                              : 'The AI destroyed your HQ. Try recruiting faster and blocking the central lanes.')
+                                          : '1. Tap your unit to select it.\n2. Tap a nearby tile to move, or an adjacent enemy to attack.\n3. Recruit scouts or tanks from the top bar.\n4. End your turn to let the AI act.\n5. Destroy the enemy HQ before your own falls.',
+                                      style: textTheme.bodyMedium,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       const Spacer(),
                       Align(
                         alignment: Alignment.bottomLeft,
