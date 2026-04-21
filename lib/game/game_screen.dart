@@ -234,49 +234,47 @@ class _GameScreenState extends State<GameScreen> {
                             child: Padding(
                               padding: const EdgeInsets.all(14),
                               child: ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 300),
+                                constraints: const BoxConstraints(maxWidth: 320),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      selectedTile!.biomeName,
+                                      selectedTile.unitType != null
+                                          ? '${selectedTile.unitOwner?.displayName} ${selectedTile.unitType?.displayName}'
+                                          : '${selectedTile.buildingOwner?.displayName} ${selectedTile.buildingType?.displayName}',
                                       style: textTheme.titleMedium,
                                     ),
-                                    const SizedBox(height: 10),
-                                    Text(
-                                      'Koordinate: ${selectedTile.coord}',
-                                      key: const Key('selected-coord-text'),
-                                      style: textTheme.bodyMedium,
+                                    const SizedBox(height: 8),
+                                    Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children: [
+                                        Chip(
+                                          label: Text(
+                                            'HP ${selectedTile.unitHealth ?? selectedTile.buildingHealth}',
+                                          ),
+                                        ),
+                                        if (selectedTile.unitType != null)
+                                          Chip(
+                                            label: Text(
+                                              selectedTile.unitReady ? 'Ready' : 'Spent',
+                                            ),
+                                          ),
+                                        Chip(
+                                          label: Text('${selectedTile.biomeName} ${selectedTile.coord}'),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 4),
+                                    const SizedBox(height: 10),
                                     Text(
                                       'Status: ${selectedTile.passabilityText}',
                                       style: textTheme.bodyMedium,
                                     ),
-                                    const SizedBox(height: 4),
                                     Text(
                                       'Bewegung: ${selectedTile.movementText}',
                                       style: textTheme.bodyMedium,
                                     ),
-                                    if (selectedTile.unitType != null) ...[
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Einheit: ${selectedTile.unitOwner?.displayName} ${selectedTile.unitType?.displayName} (${selectedTile.unitHealth} HP)',
-                                        style: textTheme.bodyMedium,
-                                      ),
-                                      Text(
-                                        selectedTile.unitReady ? 'Status: Einsatzbereit' : 'Status: Bereits gehandelt',
-                                        style: textTheme.bodyMedium,
-                                      ),
-                                    ],
-                                    if (selectedTile.buildingType != null) ...[
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Gebäude: ${selectedTile.buildingOwner?.displayName} ${selectedTile.buildingType?.displayName} (${selectedTile.buildingHealth} HP)',
-                                        style: textTheme.bodyMedium,
-                                      ),
-                                    ],
                                   ],
                                 ),
                               ),
