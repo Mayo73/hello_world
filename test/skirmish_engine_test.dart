@@ -100,4 +100,74 @@ void main() {
 
     expect(movedScout.coord, const HexCoord(3, 3));
   });
+
+  test('enemy attack prioritizes the weaker adjacent player unit', () {
+    final simpleMap = WorldMapData(
+      width: 7,
+      height: 7,
+      seed: 2,
+      tiles: {
+        for (var q = 0; q < 7; q++)
+          for (var r = 0; r < 7; r++)
+            HexCoord(q, r): WorldTile(
+              coord: HexCoord(q, r),
+              biome: TileBiome.plains,
+              isPassable: true,
+              movementCost: 1,
+            ),
+      },
+    );
+    engine.createInitialState(simpleMap);
+
+    final start = SkirmishMatchState(
+      playerCredits: 0,
+      enemyCredits: 0,
+      turn: 1,
+      activeFaction: Faction.player,
+      buildings: const [
+        SkirmishBuilding(
+          id: 'player-hq',
+          owner: Faction.player,
+          type: BuildingType.headquarters,
+          coord: HexCoord(1, 3),
+          health: 10,
+        ),
+        SkirmishBuilding(
+          id: 'enemy-hq',
+          owner: Faction.enemy,
+          type: BuildingType.headquarters,
+          coord: HexCoord(6, 3),
+          health: 10,
+        ),
+      ],
+      units: const [
+        SkirmishUnit(
+          id: 'enemy-tank',
+          owner: Faction.enemy,
+          type: UnitType.tank,
+          coord: HexCoord(3, 3),
+          health: 5,
+        ),
+        SkirmishUnit(
+          id: 'player-healthy',
+          owner: Faction.player,
+          type: UnitType.scout,
+          coord: HexCoord(2, 3),
+          health: 3,
+        ),
+        SkirmishUnit(
+          id: 'player-weak',
+          owner: Faction.player,
+          type: UnitType.scout,
+          coord: HexCoord(3, 2),
+          health: 1,
+        ),
+      ],
+    );
+
+    final next = engine.endTurn(start, simpleMap);
+
+    expect(next.units.any((unit) => unit.id == 'player-weak'), isFalse);
+    expect(next.units.any((unit) => unit.id == 'player-healthy'), isTrue);
+  });
 }

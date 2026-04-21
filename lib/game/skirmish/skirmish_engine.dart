@@ -294,32 +294,65 @@ class SkirmishEngine {
     final playerHq = state.headquartersOf(Faction.player);
     if (playerHq == null) return state.copyWith(winner: Faction.enemy, statusMessage: 'Raider AI overran your command.', phaseLabel: 'Enemy breakthrough');
 
-    final adjacentTargets = <HexCoord>[...unit.coord.neighbors()];
-    for (final coord in adjacentTargets) {
-      final playerUnit = state.units.where((candidate) => candidate.coord == coord && candidate.owner == Faction.player && !candidate.isDestroyed).firstOrNull;
-      if (playerUnit != null) {
-        final nextUnits = state.units
-            .map((candidate) {
-              if (candidate.id == playerUnit.id) return candidate.copyWith(health: candidate.health - unit.attack);
-              if (candidate.id == unit.id) return candidate.copyWith(hasActed: true);
-              return candidate;
-            })
-            .where((candidate) => !candidate.isDestroyed)
-            .toList(growable: false);
-        return _checkVictory(state.copyWith(units: nextUnits, statusMessage: 'Enemy ${unit.type.displayName.toLowerCase()} struck your line.', phaseLabel: 'Enemy attack'));
-      }
+    final adjacentPlayerUnits = state.units
+        .where((candidate) =>
+            candidate.owner == Faction.player &&
+            !candidate.isDestroyed &&
+            unit.coord.distanceTo(candidate.coord) <= 1)
+        .toList(growable: false)
+      ..sort((a, b) {
+        final healthCompare = a.health.compareTo(b.health);
+        if (healthCompare != 0) {
+          return healthCompare;
+        }
+        return a.coord.distanceTo(playerHq).compareTo(b.coord.distanceTo(playerHq));
+      });
+    final playerUnit = adjacentPlayerUnits.firstOrNull;
+    if (playerUnit != null) {
+      final nextUnits = state.units
+          .map((candidate) {
+            if (candidate.id == playerUnit.id) return candidate.copyWith(health: candidate.health - unit.attack);
+            if (candidate.id == unit.id) return candidate.copyWith(hasActed: true);
+            return candidate;
+          })
+          .where((candidate) => !candidate.isDestroyed)
+          .toList(growable: false);
+      return _checkVictory(state.copyWith(
+        units: nextUnits,
+        statusMessage: 'Enemy ${unit.type.displayName.toLowerCase()} struck your line.',
+        phaseLabel: 'Enemy attack',
+      ));
+    }
 
-      final playerBuilding = state.buildings.where((candidate) => candidate.coord == coord && candidate.owner == Faction.player && !candidate.isDestroyed).firstOrNull;
-      if (playerBuilding != null) {
-        final nextBuildings = state.buildings
-            .map((candidate) => candidate.id == playerBuilding.id ? candidate.copyWith(health: candidate.health - unit.attack) : candidate)
-            .where((candidate) => !candidate.isDestroyed)
-            .toList(growable: false);
-        final nextUnits = state.units
-            .map((candidate) => candidate.id == unit.id ? candidate.copyWith(hasActed: true) : candidate)
-            .toList(growable: false);
-        return _checkVictory(state.copyWith(buildings: nextBuildings, units: nextUnits, statusMessage: 'Enemy ${unit.type.displayName.toLowerCase()} hit your ${playerBuilding.type.displayName}.', phaseLabel: 'Enemy strike'));
-      }
+    final adjacentPlayerBuildings = state.buildings
+        .where((candidate) =>
+            candidate.owner == Faction.player &&
+            !candidate.isDestroyed &&
+            unit.coord.distanceTo(candidate.coord) <= 1)
+        .toList(growable: false)
+      ..sort((a, b) {
+        final aIsHq = a.type == BuildingType.headquarters;
+        final bIsHq = b.type == BuildingType.headquarters;
+        if (aIsHq != bIsHq) {
+          return aIsHq ? -1 : 1;
+        }
+        return a.health.compareTo(b.health);
+      });
+    final playerBuilding = adjacentPlayerBuildings.firstOrNull;
+    if (playerBuilding != null) {
+      final nextBuildings = state.buildings
+          .map((candidate) => candidate.id == playerBuilding.id ? candidate.copyWith(health: candidate.health - unit.attack) : candidate)
+          .where((candidate) => !candidate.isDestroyed)
+          .toList(growable: false);
+      final nextUnits = state.units
+          .map((candidate) => candidate.id == unit.id ? candidate.copyWith(hasActed: true) : candidate)
+          .toList(growable: false);
+      return _checkVictory(state.copyWith(
+        buildings: nextBuildings,
+        units: nextUnits,
+        statusMessage: 'Enemy ${unit.type.displayName.toLowerCase()} hit your ${playerBuilding.type.displayName}.',
+        phaseLabel: 'Enemy strike',
+      ));
     }
 
     final moveOptions = _reachableCoords(
@@ -351,51 +384,48 @@ class SkirmishEngine {
       statusMessage: 'Enemy ${unit.type.displayName.toLowerCase()} is pushing forward.',
       phaseLabel: 'Enemy advance',
     );
-   }
-+
-+  HexCoord _bestEnemyMove(
-+    List<HexCoord> moveOptions, {
-+    required SkirmishMatchState state,
-+    required HexCoord playerHq,
-+  }) {
-+    final playerUnits = state.units
-+        .where((unit) => unit.owner == Faction.player && !unit.isDestroyed)
-+        .toList(growable: false);
-+    final playerBuildings = state.buildings
-+        .where((building) => building.owner == Faction.player && !building.isDestroyed)
-+        .toList(growable: false);
-+
-+    moveOptions.sort((a, b) {
-+      final aCanHitHq = a.distanceTo(playerHq) <= 1;
-+      final bCanHitHq = b.distanceTo(playerHq) <= 1;
-+      if (aCanHitHq != bCanHitHq) {
-+        return aCanHitHq ? -1 : 1;
-+      }
-+
-+      final aCanHitBuilding = playerBuildings.any((building) => a.distanceTo(building.coord) <= 1);
-+      final bCanHitBuilding = playerBuildings.any((building) => b.distanceTo(building.coord) <= 1);
-+      if (aCanHitBuilding != bCanHitBuilding) {
-+        return aCanHitBuilding ? -1 : 1;
-+      }
-+
-+      final aCanHitUnit = playerUnits.any((unit) => a.distanceTo(unit.coord) <= 1);
-+      final bCanHitUnit = playerUnits.any((unit) => b.distanceTo(unit.coord) <= 1);
-+      if (aCanHitUnit != bCanHitUnit) {
-+        return aCanHitUnit ? -1 : 1;
-+      }
-+
-+      final hqDistance = a.distanceTo(playerHq).compareTo(b.distanceTo(playerHq));
-+      if (hqDistance != 0) {
-+        return hqDistance;
-+      }
-+
-+      return a.q == b.q ? a.r.compareTo(b.r) : a.q.compareTo(b.q);
-+    });
-+
-+    return moveOptions.first;
-+  }
- 
-   SkirmishMatchState _checkVictory(SkirmishMatchState state) {
+  }
+
+  HexCoord _bestEnemyMove(
+    List<HexCoord> moveOptions, {
+    required SkirmishMatchState state,
+    required HexCoord playerHq,
+  }) {
+    final playerUnits = state.units
+        .where((unit) => unit.owner == Faction.player && !unit.isDestroyed)
+        .toList(growable: false);
+    final playerBuildings = state.buildings
+        .where((building) => building.owner == Faction.player && !building.isDestroyed)
+        .toList(growable: false);
+
+    moveOptions.sort((a, b) {
+      final aCanHitHq = a.distanceTo(playerHq) <= 1;
+      final bCanHitHq = b.distanceTo(playerHq) <= 1;
+      if (aCanHitHq != bCanHitHq) {
+        return aCanHitHq ? -1 : 1;
+      }
+
+      final aCanHitUnit = playerUnits.any((unit) => a.distanceTo(unit.coord) <= 1);
+      final bCanHitUnit = playerUnits.any((unit) => b.distanceTo(unit.coord) <= 1);
+      if (aCanHitUnit != bCanHitUnit) {
+        return aCanHitUnit ? -1 : 1;
+      }
+
+      final aCanHitBuilding = playerBuildings.any((building) => a.distanceTo(building.coord) <= 1);
+      final bCanHitBuilding = playerBuildings.any((building) => b.distanceTo(building.coord) <= 1);
+      if (aCanHitBuilding != bCanHitBuilding) {
+        return aCanHitBuilding ? -1 : 1;
+      }
+
+      final hqDistance = a.distanceTo(playerHq).compareTo(b.distanceTo(playerHq));
+      if (hqDistance != 0) {
+        return hqDistance;
+      }
+
+      return a.q == b.q ? a.r.compareTo(b.r) : a.q.compareTo(b.q);
+    });
+
+    return moveOptions.first;
   }
 
   SkirmishMatchState _checkVictory(SkirmishMatchState state) {
