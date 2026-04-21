@@ -414,6 +414,36 @@ class RtsGame extends FlameGame {
       health: unit.health,
       maxHealth: unit.maxHealth,
     );
+    _drawUnitLabel(canvas, unit, center);
+  }
+
+  void _drawUnitLabel(
+    Canvas canvas,
+    SkirmishUnit unit,
+    Offset center,
+  ) {
+    final text = unit.type == UnitType.scout ? 'S' : 'T';
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: unit.owner == Faction.player
+              ? const Color(0xFF2F2200)
+              : const Color(0xFF351400),
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    painter.paint(
+      canvas,
+      Offset(
+        center.dx - (painter.width / 2),
+        center.dy - (painter.height / 2),
+      ),
+    );
   }
 
   void _drawHealthBar(
