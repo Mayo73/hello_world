@@ -282,21 +282,27 @@ class RtsGame extends FlameGame {
       final building = _buildingAt(tile.coord);
       final center = tile.coord.toPixel(hexRadius);
 
-      if (unit != null && unit.owner != selectedUnit.owner && distance <= 1) {
+      if (unit != null && unit.owner != selectedUnit.owner) {
         canvas.drawCircle(
           center,
           hexRadius * 0.18,
-          Paint()..color = const Color(0x99FF7B7B),
+          Paint()..color = distance <= 1 ? const Color(0x99FF7B7B) : const Color(0x445A6670),
         );
+        if (distance > 1) {
+          _drawIntentLabel(canvas, center, 'OUT');
+        }
         continue;
       }
 
-      if (building != null && building.owner != selectedUnit.owner && distance <= 1) {
+      if (building != null && building.owner != selectedUnit.owner) {
         canvas.drawCircle(
           center,
           hexRadius * 0.18,
-          Paint()..color = const Color(0x99FFB347),
+          Paint()..color = distance <= 1 ? const Color(0x99FFB347) : const Color(0x445A6670),
         );
+        if (distance > 1) {
+          _drawIntentLabel(canvas, center, 'OUT');
+        }
         continue;
       }
 
@@ -315,6 +321,26 @@ class RtsGame extends FlameGame {
         );
       }
     }
+  }
+
+  void _drawIntentLabel(Canvas canvas, Offset center, String text) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(
+          color: Color(0xFFD0D7DE),
+          fontSize: 8,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    painter.paint(
+      canvas,
+      Offset(center.dx - (painter.width / 2), center.dy + hexRadius * 0.22),
+    );
   }
 
   void _drawBuilding(Canvas canvas, SkirmishBuilding building) {
