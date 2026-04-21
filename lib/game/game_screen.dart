@@ -60,6 +60,40 @@ class _GameScreenState extends State<GameScreen> {
     _game.restartMatch();
   }
 
+  Future<void> _showQuickHelp() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF162128),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        final textTheme = Theme.of(context).textTheme;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Quick help', style: textTheme.titleLarge),
+                const SizedBox(height: 12),
+                Text(
+                  '1. Tap your unit to select it.\n'
+                  '2. Blue hexes show movement, red markers show unit attacks, orange markers show building attacks.\n'
+                  '3. Tap a highlighted tile or adjacent enemy to act.\n'
+                  '4. Recruit scouts or tanks from the top controls.\n'
+                  '5. End your turn, then destroy the enemy HQ first.',
+                  style: textTheme.bodyMedium,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -119,6 +153,11 @@ class _GameScreenState extends State<GameScreen> {
                             onPressed: _copySeedToClipboard,
                             tooltip: 'Seed kopieren',
                             icon: const Icon(Icons.copy_rounded),
+                          ),
+                          IconButton(
+                            onPressed: _showQuickHelp,
+                            tooltip: 'Quick help',
+                            icon: const Icon(Icons.help_outline_rounded),
                           ),
                           FilledButton.icon(
                             key: const Key('regenerate-button'),
