@@ -297,10 +297,35 @@ class _TopBattleBar extends StatelessWidget {
           !building.isDestroyed,
     );
 
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (match.isFinished)
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: match.winner == Faction.player
+                  ? const Color(0xCC1C3A24)
+                  : const Color(0xCC442222),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: match.winner == Faction.player
+                    ? const Color(0xAA7BFF8A)
+                    : const Color(0xAAFF8A8A),
+              ),
+            ),
+            child: Text(
+              match.winner == Faction.player
+                  ? 'Victory secured. Enemy HQ destroyed.'
+                  : 'Defeat. Your HQ has fallen.',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
         Chip(label: Text('Turn ${match.turn}')),
         Chip(label: Text(match.activeFaction == Faction.player ? 'Your turn' : 'Enemy turn')),
         Chip(label: Text('Credits ${match.playerCredits}')),
@@ -363,6 +388,8 @@ class _TopBattleBar extends StatelessWidget {
                 ? 'End turn now'
                 : 'End turn',
           ),
+        ),
+          ],
         ),
       ],
     );
