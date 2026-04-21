@@ -275,6 +275,7 @@ class _TopBattleBar extends StatelessWidget {
 
     final playerUnits = match.unitsFor(Faction.player).length;
     final enemyUnits = match.unitsFor(Faction.enemy).length;
+    final selectedUnit = match.selectedUnit;
     final playerHq = match.buildings.firstWhere(
       (building) =>
           building.owner == Faction.player &&
@@ -300,6 +301,12 @@ class _TopBattleBar extends StatelessWidget {
         Chip(label: Text('Enemy units $enemyUnits')),
         Chip(label: Text('HQ ${playerHq.health}/${playerHq.maxHealth}')),
         Chip(label: Text('Enemy HQ ${enemyHq.health}/${enemyHq.maxHealth}')),
+        if (selectedUnit != null)
+          Chip(
+            label: Text(
+              'Selected ${selectedUnit.type.displayName} ${selectedUnit.health}/${selectedUnit.maxHealth} • Move ${selectedUnit.movementRange} • ATK ${selectedUnit.attack}',
+            ),
+          ),
         if (match.statusMessage case final status?)
           Chip(label: Text(status)),
         FilledButton.tonalIcon(
