@@ -129,43 +129,48 @@ class _GameScreenState extends State<GameScreen> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                      DecoratedBox(
+                        decoration: _panelDecoration(),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          child: Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               Text(
                                 'Hexfront Prototype',
-                                style: textTheme.headlineSmall,
+                                style: textTheme.titleMedium,
                               ),
-                              const SizedBox(height: 4),
                               SelectableText(
-                                'Seed: ${_hudController.seed}',
+                                'Seed ${_hudController.seed}',
                                 key: const Key('seed-text'),
                                 style: textTheme.bodyMedium,
                               ),
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                onPressed: _copySeedToClipboard,
+                                tooltip: 'Seed kopieren',
+                                icon: const Icon(Icons.copy_rounded),
+                              ),
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                onPressed: _showQuickHelp,
+                                tooltip: 'Quick help',
+                                icon: const Icon(Icons.help_outline_rounded),
+                              ),
+                              FilledButton.tonalIcon(
+                                key: const Key('regenerate-button'),
+                                onPressed: _regenerate,
+                                icon: const Icon(Icons.autorenew_rounded),
+                                label: const Text('Neue Karte'),
+                              ),
                             ],
                           ),
-                          IconButton(
-                            onPressed: _copySeedToClipboard,
-                            tooltip: 'Seed kopieren',
-                            icon: const Icon(Icons.copy_rounded),
-                          ),
-                          IconButton(
-                            onPressed: _showQuickHelp,
-                            tooltip: 'Quick help',
-                            icon: const Icon(Icons.help_outline_rounded),
-                          ),
-                          FilledButton.icon(
-                            key: const Key('regenerate-button'),
-                            onPressed: _regenerate,
-                            icon: const Icon(Icons.autorenew_rounded),
-                            label: const Text('Neue Karte'),
-                          ),
-                        ],
+                        ),
                       ),
                       const SizedBox(height: 12),
                       _TopBattleBar(controller: _hudController, game: _game),
