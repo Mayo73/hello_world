@@ -276,10 +276,28 @@ class _TopBattleBar extends StatelessWidget {
     final playerUnits = match.unitsFor(Faction.player).length;
     final enemyUnits = match.unitsFor(Faction.enemy).length;
     final selectedUnit = match.selectedUnit;
+    final playerBarracks = match.buildings.firstWhere(
+      (building) =>
+          building.owner == Faction.player &&
+          building.type == BuildingType.barracks &&
+          !building.isDestroyed,
+    );
+    final barracksBlocked = playerBarracks.coord.neighbors().every(
+      (coord) =>
+          match.units.any((unit) => unit.coord == coord && !unit.isDestroyed) ||
+          match.buildings.any((building) =>
+              building.coord == coord && !building.isDestroyed),
+    );
     final canRecruitScout =
-        match.activeFaction == Faction.player && !match.isFinished && match.playerCredits >= 3;
+        match.activeFaction == Faction.player &&
+        !match.isFinished &&
+        match.playerCredits >= 3 &&
+        !barracksBlocked;
     final canRecruitTank =
-        match.activeFaction == Faction.player && !match.isFinished && match.playerCredits >= 5;
+        match.activeFaction == Faction.player &&
+        !match.isFinished &&
+        match.playerCredits >= 5 &&
+        !barracksBlocked;
     final readyPlayerUnits = match
         .unitsFor(Faction.player)
         .where((unit) => !unit.hasActed)
@@ -346,6 +364,8 @@ class _TopBattleBar extends StatelessWidget {
             match.activeFaction == Faction.player &&
             !match.isFinished)
           const Chip(label: Text('No ready units, end turn')),
+        if (barracksBlocked && !match.isFinished)
+          const Chip(label: Text('Barracks blocked')),
         if (match.statusMessage case final status?)
           Chip(label: Text(status)),
         FilledButton.tonalIcon(
@@ -353,14 +373,26 @@ class _TopBattleBar extends StatelessWidget {
               ? () => game.recruitUnit(UnitType.scout)
               : null,
           icon: const Icon(Icons.directions_run_rounded),
-          label: Text(canRecruitScout ? 'Scout 3' : 'Scout needs 3'),
+          label: Text(
+            canRecruitScout
+                ? 'Scout 3'
+                : barracksBlocked
+                    ? 'Scout blocked'
+                    : 'Scout needs 3',
+          ),
         ),
         FilledButton.tonalIcon(
           onPressed: canRecruitTank
               ? () => game.recruitUnit(UnitType.tank)
               : null,
           icon: const Icon(Icons.shield_rounded),
-          label: Text(canRecruitTank ? 'Tank 5' : 'Tank needs 5'),
+          label: Text(
+            canRecruitTank
+                ? 'Tank 5'
+                : barracksBlocked
+                    ? 'Tank blocked'
+                    : 'Tank needs 5',
+          ),
         ),
         FilledButton.icon(
           style: readyPlayerUnits == 0 &&
