@@ -276,6 +276,10 @@ class _TopBattleBar extends StatelessWidget {
     final playerUnits = match.unitsFor(Faction.player).length;
     final enemyUnits = match.unitsFor(Faction.enemy).length;
     final selectedUnit = match.selectedUnit;
+    final canRecruitScout =
+        match.activeFaction == Faction.player && !match.isFinished && match.playerCredits >= 3;
+    final canRecruitTank =
+        match.activeFaction == Faction.player && !match.isFinished && match.playerCredits >= 5;
     final playerHq = match.buildings.firstWhere(
       (building) =>
           building.owner == Faction.player &&
@@ -310,18 +314,18 @@ class _TopBattleBar extends StatelessWidget {
         if (match.statusMessage case final status?)
           Chip(label: Text(status)),
         FilledButton.tonalIcon(
-          onPressed: match.activeFaction == Faction.player && !match.isFinished
+          onPressed: canRecruitScout
               ? () => game.recruitUnit(UnitType.scout)
               : null,
           icon: const Icon(Icons.directions_run_rounded),
-          label: const Text('Scout 3'),
+          label: Text(canRecruitScout ? 'Scout 3' : 'Scout needs 3'),
         ),
         FilledButton.tonalIcon(
-          onPressed: match.activeFaction == Faction.player && !match.isFinished
+          onPressed: canRecruitTank
               ? () => game.recruitUnit(UnitType.tank)
               : null,
           icon: const Icon(Icons.shield_rounded),
-          label: const Text('Tank 5'),
+          label: Text(canRecruitTank ? 'Tank 5' : 'Tank needs 5'),
         ),
         FilledButton.icon(
           onPressed: match.activeFaction == Faction.player && !match.isFinished
