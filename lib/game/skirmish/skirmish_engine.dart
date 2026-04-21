@@ -322,23 +322,80 @@ class SkirmishEngine {
       }
     }
 
-    final moveOptions = unit.coord
-        .neighbors()
-        .where((coord) => map.contains(coord))
-        .where((coord) => (map.tileAt(coord)?.isPassable ?? false))
-        .where((coord) => !_isOccupied(coord, units: state.units, buildings: state.buildings))
-        .toList(growable: false);
+    final moveOptions = _reachableCoords(
+      unit,
+      map,
+      units: state.units,
+      buildings: state.buildings,
+    ).toList(growable: false);
     if (moveOptions.isEmpty) {
-      return state.copyWith(units: state.units.map((candidate) => candidate.id == unit.id ? candidate.copyWith(hasActed: true) : candidate).toList(growable: false));
+      return state.copyWith(
+        units: state.units
+            .map((candidate) =>
+                candidate.id == unit.id ? candidate.copyWith(hasActed: true) : candidate)
+            .toList(growable: false),
+      );
     }
 
-    moveOptions.sort((a, b) => a.distanceTo(playerHq).compareTo(b.distanceTo(playerHq)));
-    final destination = moveOptions.first;
+    final destination = _bestEnemyMove(
+      moveOptions,
+      state: state,
+      playerHq: playerHq,
+    );
     return state.copyWith(
-      units: state.units.map((candidate) => candidate.id == unit.id ? candidate.copyWith(coord: destination, hasActed: true) : candidate).toList(growable: false),
+      units: state.units
+          .map((candidate) => candidate.id == unit.id
+              ? candidate.copyWith(coord: destination, hasActed: true)
+              : candidate)
+          .toList(growable: false),
       statusMessage: 'Enemy ${unit.type.displayName.toLowerCase()} is pushing forward.',
       phaseLabel: 'Enemy advance',
     );
+   }
++
++  HexCoord _bestEnemyMove(
++    List<HexCoord> moveOptions, {
++    required SkirmishMatchState state,
++    required HexCoord playerHq,
++  }) {
++    final playerUnits = state.units
++        .where((unit) => unit.owner == Faction.player && !unit.isDestroyed)
++        .toList(growable: false);
++    final playerBuildings = state.buildings
++        .where((building) => building.owner == Faction.player && !building.isDestroyed)
++        .toList(growable: false);
++
++    moveOptions.sort((a, b) {
++      final aCanHitHq = a.distanceTo(playerHq) <= 1;
++      final bCanHitHq = b.distanceTo(playerHq) <= 1;
++      if (aCanHitHq != bCanHitHq) {
++        return aCanHitHq ? -1 : 1;
++      }
++
++      final aCanHitBuilding = playerBuildings.any((building) => a.distanceTo(building.coord) <= 1);
++      final bCanHitBuilding = playerBuildings.any((building) => b.distanceTo(building.coord) <= 1);
++      if (aCanHitBuilding != bCanHitBuilding) {
++        return aCanHitBuilding ? -1 : 1;
++      }
++
++      final aCanHitUnit = playerUnits.any((unit) => a.distanceTo(unit.coord) <= 1);
++      final bCanHitUnit = playerUnits.any((unit) => b.distanceTo(unit.coord) <= 1);
++      if (aCanHitUnit != bCanHitUnit) {
++        return aCanHitUnit ? -1 : 1;
++      }
++
++      final hqDistance = a.distanceTo(playerHq).compareTo(b.distanceTo(playerHq));
++      if (hqDistance != 0) {
++        return hqDistance;
++      }
++
++      return a.q == b.q ? a.r.compareTo(b.r) : a.q.compareTo(b.q);
++    });
++
++    return moveOptions.first;
++  }
+ 
+   SkirmishMatchState _checkVictory(SkirmishMatchState state) {
   }
 
   SkirmishMatchState _checkVictory(SkirmishMatchState state) {
