@@ -188,17 +188,31 @@ class _GameScreenState extends State<GameScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(
-                                      match!.winner == Faction.player
-                                          ? 'Demo won'
-                                          : 'Demo lost',
-                                      style: textTheme.titleMedium,
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          match!.winner == Faction.player
+                                              ? Icons.emoji_events_rounded
+                                              : Icons.warning_amber_rounded,
+                                          color: match.winner == Faction.player
+                                              ? const Color(0xFFE0A93B)
+                                              : const Color(0xFFFF8A8A),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          match.winner == Faction.player
+                                              ? 'Victory'
+                                              : 'Defeat',
+                                          style: textTheme.titleMedium,
+                                        ),
+                                      ],
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
                                       match.winner == Faction.player
-                                          ? 'You broke the enemy HQ. Restart this skirmish instantly or regenerate a new map for another run.'
-                                          : 'The AI destroyed your HQ. Restart this skirmish to retry the same terrain or regenerate a new map to change the board.',
+                                          ? 'Enemy HQ eliminated. Run the same skirmish again or roll a fresh map.'
+                                          : 'Your HQ fell. Retry this battlefield or generate a new one and take a different line.',
                                       style: textTheme.bodyMedium,
                                     ),
                                     const SizedBox(height: 12),
