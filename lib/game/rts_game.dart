@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flame/game.dart';
 import 'package:flame/extensions.dart';
+import 'package:flutter/painting.dart';
 
 import 'game_hud_controller.dart';
 import 'skirmish/building_type.dart';
@@ -348,6 +349,41 @@ class RtsGame extends FlameGame {
       width: hexRadius * 0.9,
       health: building.health,
       maxHealth: building.maxHealth,
+    );
+    _drawBuildingLabel(canvas, building, center);
+  }
+
+  void _drawBuildingLabel(
+    Canvas canvas,
+    SkirmishBuilding building,
+    Offset center,
+  ) {
+    final text = switch (building.type) {
+      BuildingType.headquarters => 'HQ',
+      BuildingType.mine => 'MIN',
+      BuildingType.barracks => 'BAR',
+    };
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: building.owner == Faction.player
+              ? const Color(0xFF06141C)
+              : const Color(0xFF2A0A0A),
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.6,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    painter.paint(
+      canvas,
+      Offset(
+        center.dx - (painter.width / 2),
+        center.dy - (painter.height / 2),
+      ),
     );
   }
 
