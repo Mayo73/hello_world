@@ -338,11 +338,31 @@ class _TopBattleBar extends StatelessWidget {
           label: Text(canRecruitTank ? 'Tank 5' : 'Tank needs 5'),
         ),
         FilledButton.icon(
+          style: readyPlayerUnits == 0 &&
+                  match.activeFaction == Faction.player &&
+                  !match.isFinished
+              ? FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFFE0A93B),
+                  foregroundColor: const Color(0xFF1A1304),
+                )
+              : null,
           onPressed: match.activeFaction == Faction.player && !match.isFinished
               ? game.endTurn
               : null,
-          icon: const Icon(Icons.skip_next_rounded),
-          label: const Text('End turn'),
+          icon: Icon(
+            readyPlayerUnits == 0 &&
+                    match.activeFaction == Faction.player &&
+                    !match.isFinished
+                ? Icons.play_arrow_rounded
+                : Icons.skip_next_rounded,
+          ),
+          label: Text(
+            readyPlayerUnits == 0 &&
+                    match.activeFaction == Faction.player &&
+                    !match.isFinished
+                ? 'End turn now'
+                : 'End turn',
+          ),
         ),
       ],
     );
