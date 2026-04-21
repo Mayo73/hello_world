@@ -193,7 +193,7 @@ class RtsGame extends FlameGame {
     _drawSelectedUnitIntent(canvas);
 
     for (final building in _matchState.buildings) {
-      _drawBuilding(canvas, building.coord, building.owner, building.type);
+      _drawBuilding(canvas, building);
     }
 
     for (final unit in _matchState.units) {
@@ -318,16 +318,12 @@ class RtsGame extends FlameGame {
     }
   }
 
-  void _drawBuilding(
-    Canvas canvas,
-    HexCoord coord,
-    Faction owner,
-    BuildingType type,
-  ) {
-    final center = coord.toPixel(hexRadius);
-    final color = owner == Faction.player
+  void _drawBuilding(Canvas canvas, SkirmishBuilding building) {
+    final center = building.coord.toPixel(hexRadius);
+    final color = building.owner == Faction.player
         ? const Color(0xFF6ED3FF)
         : const Color(0xFFFF7B7B);
+    final type = building.type;
     final rect = Rect.fromCenter(
       center: center,
       width: hexRadius * 1.0,
@@ -345,6 +341,14 @@ class RtsGame extends FlameGame {
       case BuildingType.barracks:
         canvas.drawRect(rect, paint);
     }
+
+    _drawHealthBar(
+      canvas,
+      center: center.translate(0, -hexRadius * 0.62),
+      width: hexRadius * 0.9,
+      health: building.health,
+      maxHealth: building.maxHealth,
+    );
   }
 
   void _drawUnit(Canvas canvas, SkirmishUnit unit) {
@@ -366,6 +370,47 @@ class RtsGame extends FlameGame {
     if (!unit.hasActed && unit.owner == Faction.player && _matchState.activeFaction == Faction.player) {
       canvas.drawCircle(center, radius + 6, Paint()..color = const Color(0x33FFFFFF));
     }
+
+    _drawHealthBar(
+      canvas,
+      center: center.translate(0, -radius - 10),
+      width: hexRadius * 0.72,
+      health: unit.health,
+      maxHealth: unit.maxHealth,
+    );
+  }
+
+  void _drawHealthBar(
+    Canvas canvas, {
+    required Offset center,
+    required double width,
+    required int health,
+    required int maxHealth,
+  }) {
+    final clampedRatio = (health / maxHealth).clamp(0.0, 1.0);
+    final rect = Rect.fromCenter(center: center, width: width, height: 6);
+    final fillRect = Rect.fromLTWH(rect.left, rect.top, rect.width * clampedRatio, rect.height);
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(rect, const Radius.circular(999)),
+      Paint()..color = const Color(0xAA11181D),
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(fillRect, const Radius.circular(999)),
+      Paint()
+        ..color = clampedRatio > 0.55
+            ? const Color(0xFF7BFF8A)
+            : clampedRatio > 0.3
+                ? const Color(0xFFFFD166)
+                : const Color(0xFFFF6B6B),
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(rect, const Radius.circular(999)),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = const Color(0x66333B42),
+    );
   }
 
   void _pushHudSelection({required WorldTile tileAt, SkirmishUnit? unit, SkirmishBuilding? building}) {
