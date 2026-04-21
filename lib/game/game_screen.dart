@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import '../main.dart';
 import 'game_hud_controller.dart';
 import 'rts_game.dart';
+import 'skirmish/building_type.dart';
 import 'skirmish/faction.dart';
 import 'skirmish/unit_type.dart';
 
@@ -274,6 +275,18 @@ class _TopBattleBar extends StatelessWidget {
 
     final playerUnits = match.unitsFor(Faction.player).length;
     final enemyUnits = match.unitsFor(Faction.enemy).length;
+    final playerHq = match.buildings.firstWhere(
+      (building) =>
+          building.owner == Faction.player &&
+          building.type == BuildingType.headquarters &&
+          !building.isDestroyed,
+    );
+    final enemyHq = match.buildings.firstWhere(
+      (building) =>
+          building.owner == Faction.enemy &&
+          building.type == BuildingType.headquarters &&
+          !building.isDestroyed,
+    );
 
     return Wrap(
       spacing: 10,
@@ -285,6 +298,8 @@ class _TopBattleBar extends StatelessWidget {
         Chip(label: Text('Enemy ${match.enemyCredits}')),
         Chip(label: Text('Units $playerUnits')),
         Chip(label: Text('Enemy units $enemyUnits')),
+        Chip(label: Text('HQ ${playerHq.health}/${playerHq.maxHealth}')),
+        Chip(label: Text('Enemy HQ ${enemyHq.health}/${enemyHq.maxHealth}')),
         if (match.statusMessage case final status?)
           Chip(label: Text(status)),
         FilledButton.tonalIcon(
