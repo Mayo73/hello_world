@@ -162,7 +162,7 @@ class _GameScreenState extends State<GameScreen> {
                                           ? (match.winner == Faction.player
                                               ? 'You broke the enemy HQ. Regenerate the map or keep experimenting with unit placement.'
                                               : 'The AI destroyed your HQ. Try recruiting faster and blocking the central lanes.')
-                                          : '1. Tap your unit to select it.\n2. Tap a nearby tile to move, or an adjacent enemy to attack.\n3. Recruit scouts or tanks from the top bar.\n4. End your turn to let the AI act.\n5. Destroy the enemy HQ before your own falls.',
+                                          : '1. Tap your unit to select it.\n2. Blue hexes show movement, red markers show unit attacks, orange markers show building attacks.\n3. Tap a highlighted tile or adjacent enemy to act.\n4. Recruit scouts or tanks from the top bar.\n5. End your turn to let the AI act, then destroy the enemy HQ first.',
                                       style: textTheme.bodyMedium,
                                     ),
                                   ],

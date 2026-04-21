@@ -190,6 +190,8 @@ class RtsGame extends FlameGame {
       _drawTile(canvas, tile);
     }
 
+    _drawSelectedUnitIntent(canvas);
+
     for (final building in _matchState.buildings) {
       _drawBuilding(canvas, building.coord, building.owner, building.type);
     }
@@ -255,6 +257,64 @@ class RtsGame extends FlameGame {
         hexRadius * 0.22,
         Paint()..color = const Color(0xCCFFF1B2),
       );
+    }
+  }
+
+  void _drawSelectedUnitIntent(Canvas canvas) {
+    final selectedUnit = _matchState.selectedUnit;
+    if (selectedUnit == null ||
+        selectedUnit.owner != Faction.player ||
+        selectedUnit.hasActed ||
+        _matchState.activeFaction != Faction.player) {
+      return;
+    }
+
+    for (final tile in _worldMap.tiles) {
+      if (!tile.isPassable || tile.coord == selectedUnit.coord) {
+        continue;
+      }
+
+      final distance = selectedUnit.coord.distanceTo(tile.coord);
+      if (distance > selectedUnit.movementRange) {
+        continue;
+      }
+
+      final unit = _unitAt(tile.coord);
+      final building = _buildingAt(tile.coord);
+      final center = tile.coord.toPixel(hexRadius);
+
+      if (unit != null && unit.owner != selectedUnit.owner && distance <= 1) {
+        canvas.drawCircle(
+          center,
+          hexRadius * 0.18,
+          Paint()..color = const Color(0x99FF7B7B),
+        );
+        continue;
+      }
+
+      if (building != null && building.owner != selectedUnit.owner && distance <= 1) {
+        canvas.drawCircle(
+          center,
+          hexRadius * 0.18,
+          Paint()..color = const Color(0x99FFB347),
+        );
+        continue;
+      }
+
+      if (unit == null && building == null) {
+        final path = _hexPath(center, hexRadius * 0.58);
+        canvas.drawPath(
+          path,
+          Paint()..color = const Color(0x335ED3FF),
+        );
+        canvas.drawPath(
+          path,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.2
+            ..color = const Color(0xAA8AE7FF),
+        );
+      }
     }
   }
 
