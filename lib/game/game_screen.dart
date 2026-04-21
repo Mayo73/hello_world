@@ -272,6 +272,9 @@ class _TopBattleBar extends StatelessWidget {
     final match = controller.matchState;
     if (match == null) return const SizedBox.shrink();
 
+    final playerUnits = match.unitsFor(Faction.player).length;
+    final enemyUnits = match.unitsFor(Faction.enemy).length;
+
     return Wrap(
       spacing: 10,
       runSpacing: 10,
@@ -280,6 +283,8 @@ class _TopBattleBar extends StatelessWidget {
         Chip(label: Text(match.activeFaction == Faction.player ? 'Your turn' : 'Enemy turn')),
         Chip(label: Text('Credits ${match.playerCredits}')),
         Chip(label: Text('Enemy ${match.enemyCredits}')),
+        Chip(label: Text('Units $playerUnits')),
+        Chip(label: Text('Enemy units $enemyUnits')),
         if (match.statusMessage case final status?)
           Chip(label: Text(status)),
         FilledButton.tonalIcon(
