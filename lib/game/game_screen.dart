@@ -56,6 +56,10 @@ class _GameScreenState extends State<GameScreen> {
     _game.regenerate(widget.seedFactory());
   }
 
+  void _restartMatch() {
+    _game.restartMatch();
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -161,11 +165,30 @@ class _GameScreenState extends State<GameScreen> {
                                     Text(
                                       match.isFinished
                                           ? (match.winner == Faction.player
-                                              ? 'You broke the enemy HQ. Regenerate the map or keep experimenting with unit placement.'
-                                              : 'The AI destroyed your HQ. Try recruiting faster and blocking the central lanes.')
+                                              ? 'You broke the enemy HQ. Restart this skirmish instantly or regenerate a new map for another run.'
+                                              : 'The AI destroyed your HQ. Restart this skirmish to retry the same terrain or regenerate a new map to change the board.')
                                           : '1. Tap your unit to select it.\n2. Blue hexes show movement, red markers show unit attacks, orange markers show building attacks. Grey OUT markers are enemy targets not yet in attack range.\n3. Tap a highlighted tile or adjacent enemy to act.\n4. Recruit scouts or tanks from the top bar.\n5. End your turn to let the AI act, then destroy the enemy HQ first.',
                                       style: textTheme.bodyMedium,
                                     ),
+                                    if (match.isFinished) ...[
+                                      const SizedBox(height: 12),
+                                      Wrap(
+                                        spacing: 10,
+                                        runSpacing: 10,
+                                        children: [
+                                          FilledButton.icon(
+                                            onPressed: _restartMatch,
+                                            icon: const Icon(Icons.replay_rounded),
+                                            label: const Text('Restart skirmish'),
+                                          ),
+                                          FilledButton.tonalIcon(
+                                            onPressed: _regenerate,
+                                            icon: const Icon(Icons.autorenew_rounded),
+                                            label: const Text('New map'),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ),

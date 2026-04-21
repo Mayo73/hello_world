@@ -74,6 +74,13 @@ class RtsGame extends FlameGame {
     _loadSeed(seed);
   }
 
+  void restartMatch() {
+    _matchState = _skirmishEngine.createInitialState(_worldMap);
+    _worldMap = _worldMap.withSelectedCoord(null);
+    hudController.clearSelection();
+    hudController.updateMatchState(_matchState);
+  }
+
   void handleTap(Offset localPosition) {
     if (!_worldReady || !_hasViewport) {
       return;
