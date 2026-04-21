@@ -95,54 +95,43 @@ class _GameScreenState extends State<GameScreen> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      DecoratedBox(
-                        decoration: _panelDecoration(),
-                        child: Padding(
-                          padding: const EdgeInsets.all(14),
-                          child: Column(
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Wrap(
-                                spacing: 12,
-                                runSpacing: 12,
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Hexfront Prototype',
-                                        style: textTheme.headlineSmall,
-                                      ),
-                                      const SizedBox(height: 4),
-                                      SelectableText(
-                                        'Seed: ${_hudController.seed}',
-                                        key: const Key('seed-text'),
-                                        style: textTheme.bodyMedium,
-                                      ),
-                                    ],
-                                  ),
-                                  IconButton(
-                                    onPressed: _copySeedToClipboard,
-                                    tooltip: 'Seed kopieren',
-                                    icon: const Icon(Icons.copy_rounded),
-                                  ),
-                                  FilledButton.icon(
-                                    key: const Key('regenerate-button'),
-                                    onPressed: _regenerate,
-                                    icon: const Icon(Icons.autorenew_rounded),
-                                    label: const Text('Neue Karte'),
-                                  ),
-                                ],
+                              Text(
+                                'Hexfront Prototype',
+                                style: textTheme.headlineSmall,
                               ),
-                              const SizedBox(height: 12),
-                              _TopBattleBar(controller: _hudController, game: _game),
+                              const SizedBox(height: 4),
+                              SelectableText(
+                                'Seed: ${_hudController.seed}',
+                                key: const Key('seed-text'),
+                                style: textTheme.bodyMedium,
+                              ),
                             ],
                           ),
-                        ),
+                          IconButton(
+                            onPressed: _copySeedToClipboard,
+                            tooltip: 'Seed kopieren',
+                            icon: const Icon(Icons.copy_rounded),
+                          ),
+                          FilledButton.icon(
+                            key: const Key('regenerate-button'),
+                            onPressed: _regenerate,
+                            icon: const Icon(Icons.autorenew_rounded),
+                            label: const Text('Neue Karte'),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 12),
-                      if (match != null)
+                      _TopBattleBar(controller: _hudController, game: _game),
+                      if (match?.isFinished ?? false) ...[
+                        const SizedBox(height: 12),
                         Align(
                           alignment: Alignment.topLeft,
                           child: DecoratedBox(
@@ -156,47 +145,42 @@ class _GameScreenState extends State<GameScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      match.isFinished
-                                          ? (match.winner == Faction.player
-                                              ? 'Demo won'
-                                              : 'Demo lost')
-                                          : 'How to play this demo',
+                                      match!.winner == Faction.player
+                                          ? 'Demo won'
+                                          : 'Demo lost',
                                       style: textTheme.titleMedium,
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
-                                      match.isFinished
-                                          ? (match.winner == Faction.player
-                                              ? 'You broke the enemy HQ. Restart this skirmish instantly or regenerate a new map for another run.'
-                                              : 'The AI destroyed your HQ. Restart this skirmish to retry the same terrain or regenerate a new map to change the board.')
-                                          : '1. Tap your unit to select it.\n2. Blue hexes show movement, red markers show unit attacks, orange markers show building attacks. Grey OUT markers are enemy targets not yet in attack range.\n3. Tap a highlighted tile or adjacent enemy to act.\n4. Recruit scouts or tanks from the top bar.\n5. End your turn to let the AI act, then destroy the enemy HQ first.',
+                                      match.winner == Faction.player
+                                          ? 'You broke the enemy HQ. Restart this skirmish instantly or regenerate a new map for another run.'
+                                          : 'The AI destroyed your HQ. Restart this skirmish to retry the same terrain or regenerate a new map to change the board.',
                                       style: textTheme.bodyMedium,
                                     ),
-                                    if (match.isFinished) ...[
-                                      const SizedBox(height: 12),
-                                      Wrap(
-                                        spacing: 10,
-                                        runSpacing: 10,
-                                        children: [
-                                          FilledButton.icon(
-                                            onPressed: _restartMatch,
-                                            icon: const Icon(Icons.replay_rounded),
-                                            label: const Text('Restart skirmish'),
-                                          ),
-                                          FilledButton.tonalIcon(
-                                            onPressed: _regenerate,
-                                            icon: const Icon(Icons.autorenew_rounded),
-                                            label: const Text('New map'),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                    const SizedBox(height: 12),
+                                    Wrap(
+                                      spacing: 10,
+                                      runSpacing: 10,
+                                      children: [
+                                        FilledButton.icon(
+                                          onPressed: _restartMatch,
+                                          icon: const Icon(Icons.replay_rounded),
+                                          label: const Text('Restart skirmish'),
+                                        ),
+                                        FilledButton.tonalIcon(
+                                          onPressed: _regenerate,
+                                          icon: const Icon(Icons.autorenew_rounded),
+                                          label: const Text('New map'),
+                                        ),
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),
                             ),
                           ),
                         ),
+                      ],
                       const Spacer(),
                       if (hasInspectableSelection)
                         Align(
