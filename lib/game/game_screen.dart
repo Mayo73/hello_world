@@ -280,6 +280,10 @@ class _TopBattleBar extends StatelessWidget {
         match.activeFaction == Faction.player && !match.isFinished && match.playerCredits >= 3;
     final canRecruitTank =
         match.activeFaction == Faction.player && !match.isFinished && match.playerCredits >= 5;
+    final readyPlayerUnits = match
+        .unitsFor(Faction.player)
+        .where((unit) => !unit.hasActed)
+        .length;
     final playerHq = match.buildings.firstWhere(
       (building) =>
           building.owner == Faction.player &&
@@ -303,6 +307,7 @@ class _TopBattleBar extends StatelessWidget {
         Chip(label: Text('Enemy ${match.enemyCredits}')),
         Chip(label: Text('Units $playerUnits')),
         Chip(label: Text('Enemy units $enemyUnits')),
+        Chip(label: Text('Ready $readyPlayerUnits')),
         Chip(label: Text('HQ ${playerHq.health}/${playerHq.maxHealth}')),
         Chip(label: Text('Enemy HQ ${enemyHq.health}/${enemyHq.maxHealth}')),
         if (match.phaseLabel case final phase?) Chip(label: Text(phase)),
@@ -312,6 +317,10 @@ class _TopBattleBar extends StatelessWidget {
               'Selected ${selectedUnit.type.displayName} ${selectedUnit.health}/${selectedUnit.maxHealth} • Reach ${selectedUnit.movementRange} • ATK ${selectedUnit.attack} • ${selectedUnit.hasActed ? 'Spent' : 'Ready'}',
             ),
           ),
+        if (readyPlayerUnits == 0 &&
+            match.activeFaction == Faction.player &&
+            !match.isFinished)
+          const Chip(label: Text('No ready units, end turn')),
         if (match.statusMessage case final status?)
           Chip(label: Text(status)),
         FilledButton.tonalIcon(
