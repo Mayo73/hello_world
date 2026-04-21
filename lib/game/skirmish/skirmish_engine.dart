@@ -184,8 +184,13 @@ class SkirmishEngine {
       ));
     }
 
-    if (unit.coord.distanceTo(targetCoord) > unit.movementRange ||
-        _isOccupied(targetCoord, units: state.units, buildings: state.buildings)) {
+    final reachableTiles = _reachableCoords(
+      unit,
+      _cachedMap!,
+      units: state.units,
+      buildings: state.buildings,
+    );
+    if (!reachableTiles.contains(targetCoord)) {
       return state.copyWith(statusMessage: 'That move is blocked or out of range.');
     }
 
@@ -335,6 +340,41 @@ class SkirmishEngine {
       return state.copyWith(winner: Faction.enemy, statusMessage: 'Defeat. Your HQ has fallen.');
     }
     return state;
+  }
+
+  Set<HexCoord> _reachableCoords(
+    SkirmishUnit unit,
+    WorldMapData map, {
+    required List<SkirmishUnit> units,
+    required List<SkirmishBuilding> buildings,
+  }) {
+    final visited = <HexCoord>{unit.coord};
+    final frontier = <({HexCoord coord, int steps})>[(coord: unit.coord, steps: 0)];
+    final reachable = <HexCoord>{};
+
+    while (frontier.isNotEmpty) {
+      final current = frontier.removeAt(0);
+      if (current.steps >= unit.movementRange) {
+        continue;
+      }
+
+      for (final neighbor in current.coord.neighbors()) {
+        if (!map.contains(neighbor) || visited.contains(neighbor)) {
+          continue;
+        }
+        visited.add(neighbor);
+
+        if (!(map.tileAt(neighbor)?.isPassable ?? false) ||
+            _isOccupied(neighbor, units: units, buildings: buildings)) {
+          continue;
+        }
+
+        reachable.add(neighbor);
+        frontier.add((coord: neighbor, steps: current.steps + 1));
+      }
+    }
+
+    return reachable;
   }
 
   bool _isOccupied(HexCoord coord, {required List<SkirmishUnit> units, required List<SkirmishBuilding> buildings}) {

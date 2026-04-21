@@ -270,16 +270,14 @@ class RtsGame extends FlameGame {
       return;
     }
 
+    final reachableTiles = _reachableTilesFor(selectedUnit);
+
     for (final tile in _worldMap.tiles) {
       if (!tile.isPassable || tile.coord == selectedUnit.coord) {
         continue;
       }
 
       final distance = selectedUnit.coord.distanceTo(tile.coord);
-      if (distance > selectedUnit.movementRange) {
-        continue;
-      }
-
       final unit = _unitAt(tile.coord);
       final building = _buildingAt(tile.coord);
       final center = tile.coord.toPixel(hexRadius);
@@ -302,7 +300,7 @@ class RtsGame extends FlameGame {
         continue;
       }
 
-      if (unit == null && building == null) {
+      if (unit == null && building == null && reachableTiles.contains(tile.coord)) {
         final path = _hexPath(center, hexRadius * 0.58);
         canvas.drawPath(
           path,
@@ -498,6 +496,38 @@ class RtsGame extends FlameGame {
     final tile = _worldMap.tileAt(selectedCoord);
     if (tile == null) return;
     _pushHudSelection(tileAt: tile, unit: _unitAt(selectedCoord), building: _buildingAt(selectedCoord));
+  }
+
+  Set<HexCoord> _reachableTilesFor(SkirmishUnit unit) {
+    final visited = <HexCoord>{unit.coord};
+    final frontier = <({HexCoord coord, int steps})>[(coord: unit.coord, steps: 0)];
+    final reachable = <HexCoord>{};
+
+    while (frontier.isNotEmpty) {
+      final current = frontier.removeAt(0);
+      if (current.steps >= unit.movementRange) {
+        continue;
+      }
+
+      for (final neighbor in current.coord.neighbors()) {
+        if (!_worldMap.contains(neighbor) || visited.contains(neighbor)) {
+          continue;
+        }
+        visited.add(neighbor);
+
+        final tile = _worldMap.tileAt(neighbor);
+        if (!(tile?.isPassable ?? false) ||
+            _unitAt(neighbor) != null ||
+            _buildingAt(neighbor) != null) {
+          continue;
+        }
+
+        reachable.add(neighbor);
+        frontier.add((coord: neighbor, steps: current.steps + 1));
+      }
+    }
+
+    return reachable;
   }
 
   SkirmishUnit? _unitAt(HexCoord coord) {

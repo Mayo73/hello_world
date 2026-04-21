@@ -308,7 +308,7 @@ class _TopBattleBar extends StatelessWidget {
         if (selectedUnit != null)
           Chip(
             label: Text(
-              'Selected ${selectedUnit.type.displayName} ${selectedUnit.health}/${selectedUnit.maxHealth} • Move ${selectedUnit.movementRange} • ATK ${selectedUnit.attack}',
+              'Selected ${selectedUnit.type.displayName} ${selectedUnit.health}/${selectedUnit.maxHealth} • Reach ${selectedUnit.movementRange} • ATK ${selectedUnit.attack}',
             ),
           ),
         if (match.statusMessage case final status?)
