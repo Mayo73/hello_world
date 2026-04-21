@@ -170,4 +170,159 @@ void main() {
     expect(next.units.any((unit) => unit.id == 'player-weak'), isFalse);
     expect(next.units.any((unit) => unit.id == 'player-healthy'), isTrue);
   });
+
+  test('enemy recruitment prefers scouts when outnumbered', () {
+    final simpleMap = WorldMapData(
+      width: 7,
+      height: 7,
+      seed: 3,
+      tiles: {
+        for (var q = 0; q < 7; q++)
+          for (var r = 0; r < 7; r++)
+            HexCoord(q, r): WorldTile(
+              coord: HexCoord(q, r),
+              biome: TileBiome.plains,
+              isPassable: true,
+              movementCost: 1,
+            ),
+      },
+    );
+    engine.createInitialState(simpleMap);
+
+    final start = SkirmishMatchState(
+      playerCredits: 0,
+      enemyCredits: 5,
+      turn: 1,
+      activeFaction: Faction.enemy,
+      buildings: const [
+        SkirmishBuilding(
+          id: 'player-hq',
+          owner: Faction.player,
+          type: BuildingType.headquarters,
+          coord: HexCoord(1, 3),
+          health: 10,
+        ),
+        SkirmishBuilding(
+          id: 'enemy-hq',
+          owner: Faction.enemy,
+          type: BuildingType.headquarters,
+          coord: HexCoord(6, 3),
+          health: 10,
+        ),
+        SkirmishBuilding(
+          id: 'enemy-barracks',
+          owner: Faction.enemy,
+          type: BuildingType.barracks,
+          coord: HexCoord(5, 4),
+          health: 7,
+        ),
+      ],
+      units: const [
+        SkirmishUnit(
+          id: 'enemy-scout',
+          owner: Faction.enemy,
+          type: UnitType.scout,
+          coord: HexCoord(6, 2),
+          health: 3,
+        ),
+        SkirmishUnit(
+          id: 'player-1',
+          owner: Faction.player,
+          type: UnitType.scout,
+          coord: HexCoord(2, 3),
+          health: 3,
+        ),
+        SkirmishUnit(
+          id: 'player-2',
+          owner: Faction.player,
+          type: UnitType.scout,
+          coord: HexCoord(2, 4),
+          health: 3,
+        ),
+        SkirmishUnit(
+          id: 'player-3',
+          owner: Faction.player,
+          type: UnitType.scout,
+          coord: HexCoord(3, 3),
+          health: 3,
+        ),
+      ],
+    );
+
+    final next = engine.endTurn(start, simpleMap);
+    final recruited = next.units.where((unit) => unit.owner == Faction.enemy).toList();
+
+    expect(recruited.any((unit) => unit.id.startsWith('enemy-scout-')), isTrue);
+    expect(recruited.any((unit) => unit.id.startsWith('enemy-tank-')), isFalse);
+  });
+
+  test('enemy recruitment opens with a tank when uncontested', () {
+    final simpleMap = WorldMapData(
+      width: 7,
+      height: 7,
+      seed: 4,
+      tiles: {
+        for (var q = 0; q < 7; q++)
+          for (var r = 0; r < 7; r++)
+            HexCoord(q, r): WorldTile(
+              coord: HexCoord(q, r),
+              biome: TileBiome.plains,
+              isPassable: true,
+              movementCost: 1,
+            ),
+      },
+    );
+    engine.createInitialState(simpleMap);
+
+    final start = SkirmishMatchState(
+      playerCredits: 0,
+      enemyCredits: 5,
+      turn: 1,
+      activeFaction: Faction.enemy,
+      buildings: const [
+        SkirmishBuilding(
+          id: 'player-hq',
+          owner: Faction.player,
+          type: BuildingType.headquarters,
+          coord: HexCoord(1, 3),
+          health: 10,
+        ),
+        SkirmishBuilding(
+          id: 'enemy-hq',
+          owner: Faction.enemy,
+          type: BuildingType.headquarters,
+          coord: HexCoord(6, 3),
+          health: 10,
+        ),
+        SkirmishBuilding(
+          id: 'enemy-barracks',
+          owner: Faction.enemy,
+          type: BuildingType.barracks,
+          coord: HexCoord(5, 4),
+          health: 7,
+        ),
+      ],
+      units: const [
+        SkirmishUnit(
+          id: 'enemy-scout',
+          owner: Faction.enemy,
+          type: UnitType.scout,
+          coord: HexCoord(6, 2),
+          health: 3,
+        ),
+        SkirmishUnit(
+          id: 'player-1',
+          owner: Faction.player,
+          type: UnitType.scout,
+          coord: HexCoord(1, 2),
+          health: 3,
+        ),
+      ],
+    );
+
+    final next = engine.endTurn(start, simpleMap);
+    final recruited = next.units.where((unit) => unit.owner == Faction.enemy).toList();
+
+    expect(recruited.any((unit) => unit.id.startsWith('enemy-tank-')), isTrue);
+  });
 }

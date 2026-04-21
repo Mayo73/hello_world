@@ -275,7 +275,7 @@ class SkirmishEngine {
       return state;
     }
 
-    final nextType = state.enemyCredits >= tankCost ? UnitType.tank : (state.enemyCredits >= scoutCost ? UnitType.scout : null);
+    final nextType = _chooseEnemyRecruitType(state);
     if (nextType == null) {
       return state;
     }
@@ -288,6 +288,44 @@ class SkirmishEngine {
       statusMessage: 'Enemy reinforced ${nextType.displayName.toLowerCase()}s.',
       phaseLabel: 'Enemy reinforcement',
     );
+  }
+
+  UnitType? _chooseEnemyRecruitType(SkirmishMatchState state) {
+    if (state.enemyCredits < scoutCost) {
+      return null;
+    }
+
+    final enemyUnits = state.unitsFor(Faction.enemy).length;
+    final playerUnits = state.unitsFor(Faction.player).length;
+    final enemyTanks = state
+        .unitsFor(Faction.enemy)
+        .where((unit) => unit.type == UnitType.tank)
+        .length;
+    final playerFrontlinePressure = state
+        .unitsFor(Faction.player)
+        .where((unit) =>
+            unit.coord.distanceTo(state.headquartersOf(Faction.enemy)!) <= 4)
+        .length;
+
+    if (state.enemyCredits >= tankCost &&
+        enemyTanks == 0 &&
+        playerFrontlinePressure == 0) {
+      return UnitType.tank;
+    }
+
+    if (playerUnits > enemyUnits && state.enemyCredits >= scoutCost) {
+      return UnitType.scout;
+    }
+
+    if (playerFrontlinePressure >= 2 && state.enemyCredits >= scoutCost) {
+      return UnitType.scout;
+    }
+
+    if (state.enemyCredits >= tankCost) {
+      return UnitType.tank;
+    }
+
+    return UnitType.scout;
   }
 
   SkirmishMatchState _enemyActWithUnit(SkirmishMatchState state, SkirmishUnit unit, WorldMapData map) {
