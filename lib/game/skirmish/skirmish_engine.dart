@@ -24,6 +24,7 @@ class SkirmishEngine {
       turn: 1,
       activeFaction: Faction.player,
       statusMessage: 'Build up, then break the enemy HQ.',
+      phaseLabel: 'Command phase',
       buildings: [
         SkirmishBuilding(
           id: 'player-hq',
@@ -133,6 +134,7 @@ class SkirmishEngine {
       playerCredits: state.playerCredits - cost,
       units: nextUnits,
       statusMessage: '${type.displayName} deployed near the barracks.',
+      phaseLabel: 'Reinforcement queued',
     ));
   }
 
@@ -164,6 +166,7 @@ class SkirmishEngine {
       return _checkVictory(state.copyWith(
         units: nextUnits,
         statusMessage: '${unit.type.displayName} hit enemy ${enemyUnit.type.displayName}.',
+        phaseLabel: 'Attack resolved',
       ));
     }
 
@@ -181,6 +184,7 @@ class SkirmishEngine {
         buildings: nextBuildings,
         units: nextUnits,
         statusMessage: '${unit.type.displayName} damaged ${enemyBuilding.type.displayName}.',
+        phaseLabel: 'Structure hit',
       ));
     }
 
@@ -198,7 +202,11 @@ class SkirmishEngine {
         .map((candidate) => candidate.id == unit.id ? candidate.copyWith(coord: targetCoord, hasActed: true) : candidate)
         .toList(growable: false);
 
-    return state.copyWith(units: nextUnits, statusMessage: '${unit.type.displayName} advanced to $targetCoord.');
+    return state.copyWith(
+      units: nextUnits,
+      statusMessage: '${unit.type.displayName} advanced to $targetCoord.',
+      phaseLabel: 'Maneuver complete',
+    );
   }
 
   SkirmishMatchState endTurn(SkirmishMatchState state, WorldMapData map) {
@@ -213,6 +221,7 @@ class SkirmishEngine {
         playerCredits: state.playerCredits + _incomeFor(state, Faction.player),
         units: state.units.map((unit) => unit.owner == Faction.enemy ? unit.copyWith(hasActed: false) : unit).toList(growable: false),
         statusMessage: 'Enemy turn...',
+        phaseLabel: 'Enemy planning',
       );
       final afterAi = _runEnemyTurn(prepared, map);
       return _checkVictory(afterAi.copyWith(
@@ -221,6 +230,7 @@ class SkirmishEngine {
         enemyCredits: afterAi.enemyCredits + _incomeFor(afterAi, Faction.enemy),
         units: afterAi.units.map((unit) => unit.owner == Faction.player ? unit.copyWith(hasActed: false) : unit).toList(growable: false),
         statusMessage: afterAi.winner == null ? 'Your turn. Build pressure and break the HQ.' : afterAi.statusMessage,
+        phaseLabel: afterAi.winner == null ? 'Command phase' : afterAi.phaseLabel,
       ));
     }
 
@@ -276,12 +286,13 @@ class SkirmishEngine {
       enemyCredits: state.enemyCredits - cost,
       units: [...state.units, SkirmishUnit(id: nextId, owner: Faction.enemy, type: nextType, coord: spawn, health: nextType.maxHealth)],
       statusMessage: 'Enemy reinforced ${nextType.displayName.toLowerCase()}s.',
+      phaseLabel: 'Enemy reinforcement',
     );
   }
 
   SkirmishMatchState _enemyActWithUnit(SkirmishMatchState state, SkirmishUnit unit, WorldMapData map) {
     final playerHq = state.headquartersOf(Faction.player);
-    if (playerHq == null) return state.copyWith(winner: Faction.enemy, statusMessage: 'Raider AI overran your command.');
+    if (playerHq == null) return state.copyWith(winner: Faction.enemy, statusMessage: 'Raider AI overran your command.', phaseLabel: 'Enemy breakthrough');
 
     final adjacentTargets = <HexCoord>[...unit.coord.neighbors()];
     for (final coord in adjacentTargets) {
@@ -295,7 +306,7 @@ class SkirmishEngine {
             })
             .where((candidate) => !candidate.isDestroyed)
             .toList(growable: false);
-        return _checkVictory(state.copyWith(units: nextUnits, statusMessage: 'Enemy ${unit.type.displayName.toLowerCase()} struck your line.'));
+        return _checkVictory(state.copyWith(units: nextUnits, statusMessage: 'Enemy ${unit.type.displayName.toLowerCase()} struck your line.', phaseLabel: 'Enemy attack'));
       }
 
       final playerBuilding = state.buildings.where((candidate) => candidate.coord == coord && candidate.owner == Faction.player && !candidate.isDestroyed).firstOrNull;
@@ -307,7 +318,7 @@ class SkirmishEngine {
         final nextUnits = state.units
             .map((candidate) => candidate.id == unit.id ? candidate.copyWith(hasActed: true) : candidate)
             .toList(growable: false);
-        return _checkVictory(state.copyWith(buildings: nextBuildings, units: nextUnits, statusMessage: 'Enemy ${unit.type.displayName.toLowerCase()} hit your ${playerBuilding.type.displayName}.'));
+        return _checkVictory(state.copyWith(buildings: nextBuildings, units: nextUnits, statusMessage: 'Enemy ${unit.type.displayName.toLowerCase()} hit your ${playerBuilding.type.displayName}.', phaseLabel: 'Enemy strike'));
       }
     }
 
@@ -326,6 +337,7 @@ class SkirmishEngine {
     return state.copyWith(
       units: state.units.map((candidate) => candidate.id == unit.id ? candidate.copyWith(coord: destination, hasActed: true) : candidate).toList(growable: false),
       statusMessage: 'Enemy ${unit.type.displayName.toLowerCase()} is pushing forward.',
+      phaseLabel: 'Enemy advance',
     );
   }
 
@@ -334,10 +346,10 @@ class SkirmishEngine {
     final enemyHqAlive = state.buildings.any((building) => building.owner == Faction.enemy && building.type == BuildingType.headquarters && !building.isDestroyed);
 
     if (!enemyHqAlive) {
-      return state.copyWith(winner: Faction.player, statusMessage: 'Victory. Enemy HQ destroyed.');
+      return state.copyWith(winner: Faction.player, statusMessage: 'Victory. Enemy HQ destroyed.', phaseLabel: 'Victory');
     }
     if (!playerHqAlive) {
-      return state.copyWith(winner: Faction.enemy, statusMessage: 'Defeat. Your HQ has fallen.');
+      return state.copyWith(winner: Faction.enemy, statusMessage: 'Defeat. Your HQ has fallen.', phaseLabel: 'Defeat');
     }
     return state;
   }

@@ -15,6 +15,7 @@ class SkirmishMatchState {
     this.selectedUnitId,
     this.winner,
     this.statusMessage,
+    this.phaseLabel,
   });
 
   final int playerCredits;
@@ -26,6 +27,7 @@ class SkirmishMatchState {
   final String? selectedUnitId;
   final Faction? winner;
   final String? statusMessage;
+  final String? phaseLabel;
 
   bool get isFinished => winner != null;
 
@@ -57,6 +59,7 @@ class SkirmishMatchState {
     Faction? winner,
     bool clearWinner = false,
     String? statusMessage,
+    String? phaseLabel,
   }) {
     return SkirmishMatchState(
       playerCredits: playerCredits ?? this.playerCredits,
@@ -68,6 +71,7 @@ class SkirmishMatchState {
       selectedUnitId: clearSelection ? null : (selectedUnitId ?? this.selectedUnitId),
       winner: clearWinner ? null : (winner ?? this.winner),
       statusMessage: statusMessage ?? this.statusMessage,
+      phaseLabel: phaseLabel ?? this.phaseLabel,
     );
   }
 

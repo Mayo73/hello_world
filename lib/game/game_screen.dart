@@ -305,6 +305,7 @@ class _TopBattleBar extends StatelessWidget {
         Chip(label: Text('Enemy units $enemyUnits')),
         Chip(label: Text('HQ ${playerHq.health}/${playerHq.maxHealth}')),
         Chip(label: Text('Enemy HQ ${enemyHq.health}/${enemyHq.maxHealth}')),
+        if (match.phaseLabel case final phase?) Chip(label: Text(phase)),
         if (selectedUnit != null)
           Chip(
             label: Text(
