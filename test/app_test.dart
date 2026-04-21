@@ -19,7 +19,7 @@ void main() {
     expect(find.text('Hexfront Prototype'), findsOneWidget);
     expect(find.byKey(const Key('seed-text')), findsOneWidget);
     expect(find.textContaining('Seed: 101'), findsOneWidget);
-    expect(find.textContaining('Tippe auf ein Feld'), findsOneWidget);
+    expect(find.textContaining('Tippe auf ein Feld'), findsNothing);
 
     await tester.tap(find.byKey(const Key('regenerate-button')));
     await tester.pump();

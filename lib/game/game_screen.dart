@@ -89,6 +89,8 @@ class _GameScreenState extends State<GameScreen> {
                 animation: _hudController,
                 builder: (context, _) {
                   final selectedTile = _hudController.selectedTile;
+                  final hasInspectableSelection =
+                      selectedTile?.hasInspectableTarget ?? false;
                   final match = _hudController.matchState;
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,68 +198,63 @@ class _GameScreenState extends State<GameScreen> {
                           ),
                         ),
                       const Spacer(),
-                      Align(
-                        alignment: Alignment.bottomLeft,
-                        child: DecoratedBox(
-                          decoration: _panelDecoration(),
-                          child: Padding(
-                            padding: const EdgeInsets.all(14),
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 300),
-                              child: selectedTile == null
-                                  ? Text(
-                                      'Tippe auf ein Feld, um Biom, Koordinate und Bewegungskosten anzuzeigen.',
-                                      style: textTheme.bodyMedium,
-                                    )
-                                  : Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          selectedTile.biomeName,
-                                          style: textTheme.titleMedium,
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          'Koordinate: ${selectedTile.coord}',
-                                          key: const Key('selected-coord-text'),
-                                          style: textTheme.bodyMedium,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          'Status: ${selectedTile.passabilityText}',
-                                          style: textTheme.bodyMedium,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          'Bewegung: ${selectedTile.movementText}',
-                                          style: textTheme.bodyMedium,
-                                        ),
-                                        if (selectedTile.unitType != null) ...[
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            'Einheit: ${selectedTile.unitOwner?.displayName} ${selectedTile.unitType?.displayName} (${selectedTile.unitHealth} HP)',
-                                            style: textTheme.bodyMedium,
-                                          ),
-                                          Text(
-                                            selectedTile.unitReady ? 'Status: Einsatzbereit' : 'Status: Bereits gehandelt',
-                                            style: textTheme.bodyMedium,
-                                          ),
-                                        ],
-                                        if (selectedTile.buildingType != null) ...[
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            'Gebäude: ${selectedTile.buildingOwner?.displayName} ${selectedTile.buildingType?.displayName} (${selectedTile.buildingHealth} HP)',
-                                            style: textTheme.bodyMedium,
-                                          ),
-                                        ],
-                                      ],
+                      if (hasInspectableSelection)
+                        Align(
+                          alignment: Alignment.bottomLeft,
+                          child: DecoratedBox(
+                            decoration: _panelDecoration(),
+                            child: Padding(
+                              padding: const EdgeInsets.all(14),
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 300),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      selectedTile!.biomeName,
+                                      style: textTheme.titleMedium,
                                     ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      'Koordinate: ${selectedTile.coord}',
+                                      key: const Key('selected-coord-text'),
+                                      style: textTheme.bodyMedium,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Status: ${selectedTile.passabilityText}',
+                                      style: textTheme.bodyMedium,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Bewegung: ${selectedTile.movementText}',
+                                      style: textTheme.bodyMedium,
+                                    ),
+                                    if (selectedTile.unitType != null) ...[
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Einheit: ${selectedTile.unitOwner?.displayName} ${selectedTile.unitType?.displayName} (${selectedTile.unitHealth} HP)',
+                                        style: textTheme.bodyMedium,
+                                      ),
+                                      Text(
+                                        selectedTile.unitReady ? 'Status: Einsatzbereit' : 'Status: Bereits gehandelt',
+                                        style: textTheme.bodyMedium,
+                                      ),
+                                    ],
+                                    if (selectedTile.buildingType != null) ...[
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Gebäude: ${selectedTile.buildingOwner?.displayName} ${selectedTile.buildingType?.displayName} (${selectedTile.buildingHealth} HP)',
+                                        style: textTheme.bodyMedium,
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
                     ],
                   );
                 },

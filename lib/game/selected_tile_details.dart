@@ -57,4 +57,6 @@ class SelectedTileDetails {
   final Faction? buildingOwner;
   final BuildingType? buildingType;
   final int? buildingHealth;
+
+  bool get hasInspectableTarget => unitType != null || buildingType != null;
 }
