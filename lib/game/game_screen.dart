@@ -179,7 +179,24 @@ class _GameScreenState extends State<GameScreen> {
                         Align(
                           alignment: Alignment.topLeft,
                           child: DecoratedBox(
-                            decoration: _panelDecoration(),
+                            decoration: BoxDecoration(
+                              color: match!.winner == Faction.player
+                                  ? const Color(0xCC1C3A24)
+                                  : const Color(0xCC442222),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: match.winner == Faction.player
+                                    ? const Color(0xAA7BFF8A)
+                                    : const Color(0xAAFF8A8A),
+                              ),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color(0x66000000),
+                                  blurRadius: 22,
+                                  offset: Offset(0, 10),
+                                ),
+                              ],
+                            ),
                             child: Padding(
                               padding: const EdgeInsets.all(14),
                               child: ConstrainedBox(
@@ -188,25 +205,38 @@ class _GameScreenState extends State<GameScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          match!.winner == Faction.player
-                                              ? Icons.emoji_events_rounded
-                                              : Icons.warning_amber_rounded,
-                                          color: match.winner == Faction.player
-                                              ? const Color(0xFFE0A93B)
-                                              : const Color(0xFFFF8A8A),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          match.winner == Faction.player
-                                              ? 'Victory'
-                                              : 'Defeat',
-                                          style: textTheme.titleMedium,
-                                        ),
-                                      ],
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: match.winner == Faction.player
+                                            ? const Color(0x3328C76F)
+                                            : const Color(0x33FF6B6B),
+                                        borderRadius: BorderRadius.circular(999),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            match.winner == Faction.player
+                                                ? Icons.emoji_events_rounded
+                                                : Icons.warning_amber_rounded,
+                                            size: 18,
+                                            color: match.winner == Faction.player
+                                                ? const Color(0xFFE0A93B)
+                                                : const Color(0xFFFFB0B0),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            match.winner == Faction.player
+                                                ? 'Victory'
+                                                : 'Defeat',
+                                            style: textTheme.titleSmall,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
