@@ -366,26 +366,31 @@ class _TopBattleBar extends StatelessWidget {
     final playerUnits = match.unitsFor(Faction.player).length;
     final enemyUnits = match.unitsFor(Faction.enemy).length;
     final selectedUnit = match.selectedUnit;
-    final playerBarracks = match.buildings.firstWhere(
+    final playerBarracks = match.buildings.where(
       (building) =>
           building.owner == Faction.player &&
           building.type == BuildingType.barracks &&
           !building.isDestroyed,
-    );
-    final barracksBlocked = playerBarracks.coord.neighbors().every(
-      (coord) =>
-          match.units.any((unit) => unit.coord == coord && !unit.isDestroyed) ||
-          match.buildings.any((building) =>
-              building.coord == coord && !building.isDestroyed),
-    );
+    ).firstOrNull;
+    final barracksBlocked = playerBarracks == null
+        ? false
+        : playerBarracks.coord.neighbors().every(
+            (coord) =>
+                match.units.any((unit) => unit.coord == coord && !unit.isDestroyed) ||
+                match.buildings.any((building) =>
+                    building.coord == coord && !building.isDestroyed),
+          );
+    final hasBarracks = playerBarracks != null;
     final canRecruitScout =
         match.activeFaction == Faction.player &&
         !match.isFinished &&
+        hasBarracks &&
         match.playerCredits >= 3 &&
         !barracksBlocked;
     final canRecruitTank =
         match.activeFaction == Faction.player &&
         !match.isFinished &&
+        hasBarracks &&
         match.playerCredits >= 5 &&
         !barracksBlocked;
     final readyPlayerUnits = match
@@ -454,6 +459,8 @@ class _TopBattleBar extends StatelessWidget {
             match.activeFaction == Faction.player &&
             !match.isFinished)
           const Chip(label: Text('No ready units, end turn')),
+        if (!hasBarracks && !match.isFinished)
+          const Chip(label: Text('Barracks destroyed')),
         if (barracksBlocked && !match.isFinished)
           const Chip(label: Text('Barracks blocked')),
         if (match.statusMessage case final status?)
@@ -466,9 +473,11 @@ class _TopBattleBar extends StatelessWidget {
           label: Text(
             canRecruitScout
                 ? 'Scout 3'
-                : barracksBlocked
-                    ? 'Scout blocked'
-                    : 'Scout needs 3',
+                : !hasBarracks
+                    ? 'No barracks'
+                    : barracksBlocked
+                        ? 'Scout blocked'
+                        : 'Scout needs 3',
           ),
         ),
         FilledButton.tonalIcon(
@@ -479,9 +488,11 @@ class _TopBattleBar extends StatelessWidget {
           label: Text(
             canRecruitTank
                 ? 'Tank 5'
-                : barracksBlocked
-                    ? 'Tank blocked'
-                    : 'Tank needs 5',
+                : !hasBarracks
+                    ? 'No barracks'
+                    : barracksBlocked
+                        ? 'Tank blocked'
+                        : 'Tank needs 5',
           ),
         ),
         FilledButton.icon(

@@ -110,12 +110,17 @@ class SkirmishEngine {
       return state.copyWith(statusMessage: 'Not enough credits for ${type.displayName}.');
     }
 
-    final barracks = state.buildings.firstWhere(
+    final barracks = state.buildings.where(
       (building) =>
           building.owner == Faction.player &&
           building.type == BuildingType.barracks &&
           !building.isDestroyed,
-    );
+    ).firstOrNull;
+    if (barracks == null) {
+      return state.copyWith(
+        statusMessage: 'Your barracks has been destroyed. Rebuild control of the map first.',
+      );
+    }
 
     final spawn = _firstFreeAdjacent(
       barracks.coord,

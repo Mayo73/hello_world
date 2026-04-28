@@ -37,6 +37,23 @@ void main() {
     expect(next.units.where((u) => u.owner == Faction.player).length, 2);
   });
 
+  test('player recruitment fails cleanly when barracks is destroyed', () {
+    final state = engine.createInitialState(map);
+    final withoutBarracks = state.copyWith(
+      buildings: state.buildings
+          .where((building) =>
+              !(building.owner == Faction.player &&
+                  building.type == BuildingType.barracks))
+          .toList(growable: false),
+    );
+
+    final next = engine.recruitUnit(withoutBarracks, UnitType.scout);
+
+    expect(next.units.length, withoutBarracks.units.length);
+    expect(next.playerCredits, withoutBarracks.playerCredits);
+    expect(next.statusMessage, contains('barracks'));
+  });
+
   test('ending turn returns control to player and advances round', () {
     final state = engine.createInitialState(map);
     final next = engine.endTurn(state, map);
