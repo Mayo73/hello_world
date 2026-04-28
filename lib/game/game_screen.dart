@@ -397,18 +397,18 @@ class _TopBattleBar extends StatelessWidget {
         .unitsFor(Faction.player)
         .where((unit) => !unit.hasActed)
         .length;
-    final playerHq = match.buildings.firstWhere(
+    final playerHq = match.buildings.where(
       (building) =>
           building.owner == Faction.player &&
           building.type == BuildingType.headquarters &&
           !building.isDestroyed,
-    );
-    final enemyHq = match.buildings.firstWhere(
+    ).firstOrNull;
+    final enemyHq = match.buildings.where(
       (building) =>
           building.owner == Faction.enemy &&
           building.type == BuildingType.headquarters &&
           !building.isDestroyed,
-    );
+    ).firstOrNull;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,8 +446,20 @@ class _TopBattleBar extends StatelessWidget {
         Chip(label: Text('Units $playerUnits')),
         Chip(label: Text('Enemy units $enemyUnits')),
         Chip(label: Text('Ready $readyPlayerUnits')),
-        Chip(label: Text('HQ ${playerHq.health}/${playerHq.maxHealth}')),
-        Chip(label: Text('Enemy HQ ${enemyHq.health}/${enemyHq.maxHealth}')),
+        Chip(
+          label: Text(
+            playerHq != null
+                ? 'HQ ${playerHq.health}/${playerHq.maxHealth}'
+                : 'HQ down',
+          ),
+        ),
+        Chip(
+          label: Text(
+            enemyHq != null
+                ? 'Enemy HQ ${enemyHq.health}/${enemyHq.maxHealth}'
+                : 'Enemy HQ down',
+          ),
+        ),
         if (match.phaseLabel case final phase?) Chip(label: Text(phase)),
         if (selectedUnit != null)
           Chip(
