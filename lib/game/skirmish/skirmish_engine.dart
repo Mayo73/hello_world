@@ -225,25 +225,58 @@ class SkirmishEngine {
         activeFaction: Faction.enemy,
         clearSelection: true,
         playerCredits: state.playerCredits + playerIncome,
-        units: state.units.map((unit) => unit.owner == Faction.enemy ? unit.copyWith(hasActed: false) : unit).toList(growable: false),
+        units: state.units
+            .map((unit) => unit.owner == Faction.enemy
+                ? unit.copyWith(hasActed: false)
+                : unit)
+            .toList(growable: false),
         statusMessage: 'Enemy turn. You collected +$playerIncome credits.',
         phaseLabel: 'Enemy planning',
       );
-      final afterAi = _runEnemyTurn(prepared, map);
-      final enemyIncome = _incomeFor(afterAi, Faction.enemy);
-      return _checkVictory(afterAi.copyWith(
-        activeFaction: Faction.player,
-        turn: prepared.turn + 1,
-        enemyCredits: afterAi.enemyCredits + enemyIncome,
-        units: afterAi.units.map((unit) => unit.owner == Faction.player ? unit.copyWith(hasActed: false) : unit).toList(growable: false),
-        statusMessage: afterAi.winner == null
-            ? 'Your turn. +$playerIncome credits collected, enemy gained +$enemyIncome. Build pressure and break the HQ.'
-            : afterAi.statusMessage,
-        phaseLabel: afterAi.winner == null ? 'Command phase' : afterAi.phaseLabel,
-      ));
+      _cachedMap = map;
+      return _resolveEnemyTurn(prepared, map, playerIncome: playerIncome);
+    }
+
+    if (state.activeFaction == Faction.enemy) {
+      final prepared = state.copyWith(
+        units: state.units
+            .map((unit) => unit.owner == Faction.enemy
+                ? unit.copyWith(hasActed: false)
+                : unit)
+            .toList(growable: false),
+        statusMessage: 'Enemy turn...',
+        phaseLabel: 'Enemy planning',
+      );
+      _cachedMap = map;
+      return _resolveEnemyTurn(prepared, map);
     }
 
     return state;
+  }
+
+  SkirmishMatchState _resolveEnemyTurn(
+    SkirmishMatchState prepared,
+    WorldMapData map, {
+    int playerIncome = 0,
+  }) {
+    final afterAi = _runEnemyTurn(prepared, map);
+    final enemyIncome = _incomeFor(afterAi, Faction.enemy);
+    return _checkVictory(afterAi.copyWith(
+      activeFaction: Faction.player,
+      turn: prepared.turn + 1,
+      enemyCredits: afterAi.enemyCredits + enemyIncome,
+      units: afterAi.units
+          .map((unit) => unit.owner == Faction.player
+              ? unit.copyWith(hasActed: false)
+              : unit)
+          .toList(growable: false),
+      statusMessage: afterAi.winner == null
+          ? playerIncome > 0
+              ? 'Your turn. +$playerIncome credits collected, enemy gained +$enemyIncome. Build pressure and break the HQ.'
+              : 'Your turn. Enemy gained +$enemyIncome credits. Build pressure and break the HQ.'
+          : afterAi.statusMessage,
+      phaseLabel: afterAi.winner == null ? 'Command phase' : afterAi.phaseLabel,
+    ));
   }
 
   int _incomeFor(SkirmishMatchState state, Faction faction) {

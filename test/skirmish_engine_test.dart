@@ -665,6 +665,63 @@ void main() {
     expect(recruited.any((unit) => unit.id.startsWith('enemy-tank-')), isTrue);
   });
 
+  test('direct enemy turn setup resolves back to player turn', () {
+    final simpleMap = WorldMapData(
+      width: 7,
+      height: 7,
+      seed: 42,
+      tiles: {
+        for (var q = 0; q < 7; q++)
+          for (var r = 0; r < 7; r++)
+            HexCoord(q, r): WorldTile(
+              coord: HexCoord(q, r),
+              biome: TileBiome.plains,
+              isPassable: true,
+              movementCost: 1,
+            ),
+      },
+    );
+    engine.createInitialState(simpleMap);
+
+    final start = SkirmishMatchState(
+      playerCredits: 0,
+      enemyCredits: 0,
+      turn: 3,
+      activeFaction: Faction.enemy,
+      buildings: const [
+        SkirmishBuilding(
+          id: 'player-hq',
+          owner: Faction.player,
+          type: BuildingType.headquarters,
+          coord: HexCoord(1, 3),
+          health: 10,
+        ),
+        SkirmishBuilding(
+          id: 'enemy-hq',
+          owner: Faction.enemy,
+          type: BuildingType.headquarters,
+          coord: HexCoord(6, 3),
+          health: 10,
+        ),
+      ],
+      units: const [
+        SkirmishUnit(
+          id: 'enemy-scout',
+          owner: Faction.enemy,
+          type: UnitType.scout,
+          coord: HexCoord(5, 3),
+          health: 3,
+        ),
+      ],
+    );
+
+    final next = engine.endTurn(start, simpleMap);
+
+    expect(next.activeFaction, Faction.player);
+    expect(next.turn, 4);
+    expect(next.statusMessage, contains('Enemy gained +2 credits'));
+  });
+
   test('fresh enemy recruit does not act on the same turn it spawns', () {
     final simpleMap = WorldMapData(
       width: 7,
