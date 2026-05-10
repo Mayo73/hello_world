@@ -54,6 +54,9 @@ class SkirmishMatchState {
 
   int incomeFor(Faction faction) => 2 + mineCountFor(faction);
 
+  int readyUnitCountFor(Faction faction) =>
+      unitsFor(faction).where((unit) => !unit.hasActed).length;
+
   SkirmishMatchState copyWith({
     int? playerCredits,
     int? enemyCredits,

@@ -55,6 +55,24 @@ void main() {
     expect(withoutEnemyMine.incomeFor(Faction.enemy), 2);
   });
 
+  test('ready unit count tracks spent units per faction', () {
+    final state = engine.createInitialState(map);
+
+    expect(state.readyUnitCountFor(Faction.player), 1);
+    expect(state.readyUnitCountFor(Faction.enemy), 1);
+
+    final spentPlayerScout = state.copyWith(
+      units: state.units
+          .map((unit) => unit.owner == Faction.player
+              ? unit.copyWith(hasActed: true)
+              : unit)
+          .toList(growable: false),
+    );
+
+    expect(spentPlayerScout.readyUnitCountFor(Faction.player), 0);
+    expect(spentPlayerScout.readyUnitCountFor(Faction.enemy), 1);
+  });
+
   test('player recruitment fails cleanly when barracks is destroyed', () {
     final state = engine.createInitialState(map);
     final withoutBarracks = state.copyWith(

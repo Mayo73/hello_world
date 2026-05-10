@@ -436,10 +436,7 @@ class _TopBattleBar extends StatelessWidget {
         hasBarracks &&
         match.playerCredits >= 5 &&
         !barracksBlocked;
-    final readyPlayerUnits = match
-        .unitsFor(Faction.player)
-        .where((unit) => !unit.hasActed)
-        .length;
+    final readyPlayerUnits = match.readyUnitCountFor(Faction.player);
     final playerHq = match.buildings.where(
       (building) =>
           building.owner == Faction.player &&
