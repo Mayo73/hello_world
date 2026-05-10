@@ -112,6 +112,7 @@ void main() {
     );
 
     expect(find.textContaining('Commander Barracks'), findsOneWidget);
+    expect(find.text('HP 7/7'), findsOneWidget);
     expect(find.text('Production building'), findsOneWidget);
     expect(find.text('Deploys Scout, Tank'), findsOneWidget);
   });
@@ -130,6 +131,7 @@ void main() {
     );
 
     expect(find.textContaining('Commander HQ'), findsOneWidget);
+    expect(find.text('HP 10/10'), findsOneWidget);
     expect(find.text('Critical target'), findsOneWidget);
     expect(find.textContaining('Lose this and the match ends'), findsOneWidget);
   });
