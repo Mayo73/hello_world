@@ -374,10 +374,10 @@ class SkirmishEngine {
             unit.coord.distanceTo(candidate.coord) <= 1)
         .toList(growable: false)
       ..sort((a, b) {
-        final aIsHq = a.type == BuildingType.headquarters;
-        final bIsHq = b.type == BuildingType.headquarters;
-        if (aIsHq != bIsHq) {
-          return aIsHq ? -1 : 1;
+        final priorityCompare =
+            _buildingTargetPriority(a).compareTo(_buildingTargetPriority(b));
+        if (priorityCompare != 0) {
+          return priorityCompare;
         }
         return a.health.compareTo(b.health);
       });
@@ -427,6 +427,17 @@ class SkirmishEngine {
       statusMessage: 'Enemy ${unit.type.displayName.toLowerCase()} is pushing forward.',
       phaseLabel: 'Enemy advance',
     );
+  }
+
+  int _buildingTargetPriority(SkirmishBuilding building) {
+    switch (building.type) {
+      case BuildingType.headquarters:
+        return 0;
+      case BuildingType.mine:
+        return 1;
+      case BuildingType.barracks:
+        return 2;
+    }
   }
 
   HexCoord _bestEnemyMove(
