@@ -118,6 +118,160 @@ void main() {
     expect(movedScout.coord, const HexCoord(3, 3));
   });
 
+  test('scouts cannot move through forest as if it were plain terrain', () {
+    const passableCorridor = {
+      HexCoord(0, 4),
+      HexCoord(1, 1),
+      HexCoord(2, 1),
+      HexCoord(3, 1),
+      HexCoord(4, 0),
+    };
+    final terrainMap = WorldMapData(
+      width: 5,
+      height: 5,
+      seed: 11,
+      tiles: {
+        for (var q = 0; q < 5; q++)
+          for (var r = 0; r < 5; r++)
+            HexCoord(q, r): WorldTile(
+              coord: HexCoord(q, r),
+              biome: q == 2 && r == 1
+                  ? TileBiome.forest
+                  : passableCorridor.contains(HexCoord(q, r))
+                  ? TileBiome.plains
+                  : TileBiome.mountain,
+              isPassable: passableCorridor.contains(HexCoord(q, r)),
+              movementCost: q == 2 && r == 1
+                  ? 2
+                  : passableCorridor.contains(HexCoord(q, r))
+                  ? 1
+                  : null,
+            ),
+      },
+    );
+    engine.createInitialState(terrainMap);
+
+    final start = SkirmishMatchState(
+      playerCredits: 0,
+      enemyCredits: 0,
+      turn: 1,
+      activeFaction: Faction.player,
+      selectedUnitId: 'player-scout',
+      buildings: const [
+        SkirmishBuilding(
+          id: 'player-hq',
+          owner: Faction.player,
+          type: BuildingType.headquarters,
+          coord: HexCoord(0, 4),
+          health: 10,
+        ),
+        SkirmishBuilding(
+          id: 'enemy-hq',
+          owner: Faction.enemy,
+          type: BuildingType.headquarters,
+          coord: HexCoord(4, 0),
+          health: 10,
+        ),
+      ],
+      units: const [
+        SkirmishUnit(
+          id: 'player-scout',
+          owner: Faction.player,
+          type: UnitType.scout,
+          coord: HexCoord(1, 1),
+          health: 3,
+        ),
+      ],
+    );
+
+    final intoForest = engine.moveOrAttackSelectedUnit(start, const HexCoord(2, 1));
+    expect(
+      intoForest.units.firstWhere((unit) => unit.id == 'player-scout').coord,
+      const HexCoord(2, 1),
+    );
+
+    final acrossForest = engine.moveOrAttackSelectedUnit(start, const HexCoord(3, 1));
+    expect(
+      acrossForest.units.firstWhere((unit) => unit.id == 'player-scout').coord,
+      const HexCoord(1, 1),
+    );
+    expect(acrossForest.statusMessage, contains('blocked'));
+  });
+
+  test('tanks cannot enter forest with only 1 movement point', () {
+    const passableCorridor = {
+      HexCoord(0, 4),
+      HexCoord(1, 1),
+      HexCoord(2, 1),
+      HexCoord(4, 0),
+    };
+    final terrainMap = WorldMapData(
+      width: 5,
+      height: 5,
+      seed: 12,
+      tiles: {
+        for (var q = 0; q < 5; q++)
+          for (var r = 0; r < 5; r++)
+            HexCoord(q, r): WorldTile(
+              coord: HexCoord(q, r),
+              biome: q == 2 && r == 1
+                  ? TileBiome.forest
+                  : passableCorridor.contains(HexCoord(q, r))
+                  ? TileBiome.plains
+                  : TileBiome.mountain,
+              isPassable: passableCorridor.contains(HexCoord(q, r)),
+              movementCost: q == 2 && r == 1
+                  ? 2
+                  : passableCorridor.contains(HexCoord(q, r))
+                  ? 1
+                  : null,
+            ),
+      },
+    );
+    engine.createInitialState(terrainMap);
+
+    final start = SkirmishMatchState(
+      playerCredits: 0,
+      enemyCredits: 0,
+      turn: 1,
+      activeFaction: Faction.player,
+      selectedUnitId: 'player-tank',
+      buildings: const [
+        SkirmishBuilding(
+          id: 'player-hq',
+          owner: Faction.player,
+          type: BuildingType.headquarters,
+          coord: HexCoord(0, 4),
+          health: 10,
+        ),
+        SkirmishBuilding(
+          id: 'enemy-hq',
+          owner: Faction.enemy,
+          type: BuildingType.headquarters,
+          coord: HexCoord(4, 0),
+          health: 10,
+        ),
+      ],
+      units: const [
+        SkirmishUnit(
+          id: 'player-tank',
+          owner: Faction.player,
+          type: UnitType.tank,
+          coord: HexCoord(1, 1),
+          health: 5,
+        ),
+      ],
+    );
+
+    final next = engine.moveOrAttackSelectedUnit(start, const HexCoord(2, 1));
+
+    expect(
+      next.units.firstWhere((unit) => unit.id == 'player-tank').coord,
+      const HexCoord(1, 1),
+    );
+    expect(next.statusMessage, contains('blocked'));
+  });
+
   test('enemy attack prioritizes the weaker adjacent player unit', () {
     final simpleMap = WorldMapData(
       width: 7,

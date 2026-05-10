@@ -490,29 +490,48 @@ class SkirmishEngine {
     required List<SkirmishUnit> units,
     required List<SkirmishBuilding> buildings,
   }) {
-    final visited = <HexCoord>{unit.coord};
-    final frontier = <({HexCoord coord, int steps})>[(coord: unit.coord, steps: 0)];
+    final bestCost = <HexCoord, int>{unit.coord: 0};
+    final frontier = <({HexCoord coord, int costUsed})>[
+      (coord: unit.coord, costUsed: 0),
+    ];
     final reachable = <HexCoord>{};
 
     while (frontier.isNotEmpty) {
+      frontier.sort((a, b) => a.costUsed.compareTo(b.costUsed));
       final current = frontier.removeAt(0);
-      if (current.steps >= unit.movementRange) {
+      final knownCost = bestCost[current.coord];
+      if (knownCost != current.costUsed) {
         continue;
       }
 
       for (final neighbor in current.coord.neighbors()) {
-        if (!map.contains(neighbor) || visited.contains(neighbor)) {
-          continue;
-        }
-        visited.add(neighbor);
-
-        if (!(map.tileAt(neighbor)?.isPassable ?? false) ||
-            _isOccupied(neighbor, units: units, buildings: buildings)) {
+        if (!map.contains(neighbor)) {
           continue;
         }
 
+        final tile = map.tileAt(neighbor);
+        final movementCost = tile?.movementCost;
+        if (!(tile?.isPassable ?? false) || movementCost == null) {
+          continue;
+        }
+
+        if (_isOccupied(neighbor, units: units, buildings: buildings)) {
+          continue;
+        }
+
+        final nextCost = current.costUsed + movementCost;
+        if (nextCost > unit.movementRange) {
+          continue;
+        }
+
+        final previousBest = bestCost[neighbor];
+        if (previousBest != null && previousBest <= nextCost) {
+          continue;
+        }
+
+        bestCost[neighbor] = nextCost;
         reachable.add(neighbor);
-        frontier.add((coord: neighbor, steps: current.steps + 1));
+        frontier.add((coord: neighbor, costUsed: nextCost));
       }
     }
 

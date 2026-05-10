@@ -81,9 +81,9 @@ class _GameScreenState extends State<GameScreen> {
                 Text(
                   '1. Tap your unit to select it.\n'
                   '2. Blue hexes show movement, red markers show unit attacks, orange markers show building attacks.\n'
-                  '3. Tap a highlighted tile or adjacent enemy to act.\n'
-                  '4. Recruit scouts or tanks from the top controls.\n'
-                  '5. End your turn, then destroy the enemy HQ first.',
+                  '3. Forest tiles cost 2 AP, plains cost 1 AP, so routes matter.\n'
+                  '4. Tap a highlighted tile or adjacent enemy to act.\n'
+                  '5. Recruit scouts or tanks from the top controls, then destroy the enemy HQ first.',
                   style: textTheme.bodyMedium,
                 ),
               ],
