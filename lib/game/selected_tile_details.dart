@@ -14,9 +14,12 @@ class SelectedTileDetails {
     this.unitType,
     this.unitHealth,
     this.unitReady = false,
+    this.unitAttack,
+    this.unitMoveAp,
     this.buildingOwner,
     this.buildingType,
     this.buildingHealth,
+    this.buildingEffectText,
   });
 
   factory SelectedTileDetails.fromTile(
@@ -40,9 +43,17 @@ class SelectedTileDetails {
       unitType: unitType,
       unitHealth: unitHealth,
       unitReady: unitReady,
+      unitAttack: unitType?.attack,
+      unitMoveAp: unitType == null ? null : (unitType == UnitType.scout ? 2 : 1),
       buildingOwner: buildingOwner,
       buildingType: buildingType,
       buildingHealth: buildingHealth,
+      buildingEffectText: switch (buildingType) {
+        BuildingType.headquarters => 'Critical target',
+        BuildingType.mine => '+1 income',
+        BuildingType.barracks => 'Deploys units',
+        null => null,
+      },
     );
   }
 
@@ -54,9 +65,12 @@ class SelectedTileDetails {
   final UnitType? unitType;
   final int? unitHealth;
   final bool unitReady;
+  final int? unitAttack;
+  final int? unitMoveAp;
   final Faction? buildingOwner;
   final BuildingType? buildingType;
   final int? buildingHealth;
+  final String? buildingEffectText;
 
   bool get hasInspectableTarget => unitType != null || buildingType != null;
 }

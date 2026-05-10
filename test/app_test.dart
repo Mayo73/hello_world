@@ -2,6 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hello_world/main.dart';
 
+Future<void> _tapGameHex(
+  WidgetTester tester,
+  Offset position,
+) async {
+  final gesture = await tester.startGesture(position);
+  await tester.pump();
+  await gesture.up();
+  await tester.pump();
+}
+
 void main() {
   testWidgets('app shows game HUD and regenerates with a new seed', (
     WidgetTester tester,
@@ -48,5 +58,23 @@ void main() {
     expect(find.textContaining('Forest tiles cost 2 AP'), findsOneWidget);
     expect(find.textContaining('Mines raise your income each turn'), findsOneWidget);
     expect(find.textContaining('destroy the enemy HQ first'), findsOneWidget);
+  });
+
+  testWidgets('selected unit panel shows combat and movement stats', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(MyApp(seedFactory: () => 101));
+    await tester.pump();
+
+    final gameArea = find.byKey(const Key('game-gesture-layer'));
+    final gameRect = tester.getRect(gameArea);
+    await _tapGameHex(
+      tester,
+      Offset(gameRect.center.dx - 85, gameRect.center.dy + 45),
+    );
+
+    expect(find.textContaining('Commander Scout'), findsOneWidget);
+    expect(find.text('Move 2 AP'), findsOneWidget);
+    expect(find.text('ATK 1'), findsOneWidget);
   });
 }

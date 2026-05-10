@@ -306,6 +306,16 @@ class _GameScreenState extends State<GameScreen> {
                                               selectedTile.unitReady ? 'Ready' : 'Spent',
                                             ),
                                           ),
+                                        if (selectedTile.unitMoveAp != null)
+                                          Chip(
+                                            label: Text('Move ${selectedTile.unitMoveAp} AP'),
+                                          ),
+                                        if (selectedTile.unitAttack != null)
+                                          Chip(
+                                            label: Text('ATK ${selectedTile.unitAttack}'),
+                                          ),
+                                        if (selectedTile.buildingEffectText case final effect?)
+                                          Chip(label: Text(effect)),
                                         Chip(
                                           label: Text('${selectedTile.biomeName} ${selectedTile.coord}'),
                                         ),
