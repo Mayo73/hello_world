@@ -293,7 +293,17 @@ class SkirmishEngine {
     final nextId = 'enemy-${nextType.name}-${state.units.length + 1}';
     return state.copyWith(
       enemyCredits: state.enemyCredits - cost,
-      units: [...state.units, SkirmishUnit(id: nextId, owner: Faction.enemy, type: nextType, coord: spawn, health: nextType.maxHealth)],
+      units: [
+        ...state.units,
+        SkirmishUnit(
+          id: nextId,
+          owner: Faction.enemy,
+          type: nextType,
+          coord: spawn,
+          health: nextType.maxHealth,
+          hasActed: true,
+        ),
+      ],
       statusMessage: 'Enemy reinforced ${nextType.displayName.toLowerCase()}s.',
       phaseLabel: 'Enemy reinforcement',
     );

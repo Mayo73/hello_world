@@ -664,4 +664,69 @@ void main() {
 
     expect(recruited.any((unit) => unit.id.startsWith('enemy-tank-')), isTrue);
   });
+
+  test('fresh enemy recruit does not act on the same turn it spawns', () {
+    final simpleMap = WorldMapData(
+      width: 7,
+      height: 7,
+      seed: 41,
+      tiles: {
+        for (var q = 0; q < 7; q++)
+          for (var r = 0; r < 7; r++)
+            HexCoord(q, r): WorldTile(
+              coord: HexCoord(q, r),
+              biome: TileBiome.plains,
+              isPassable: true,
+              movementCost: 1,
+            ),
+      },
+    );
+    engine.createInitialState(simpleMap);
+
+    final start = SkirmishMatchState(
+      playerCredits: 0,
+      enemyCredits: 3,
+      turn: 1,
+      activeFaction: Faction.enemy,
+      buildings: const [
+        SkirmishBuilding(
+          id: 'player-hq',
+          owner: Faction.player,
+          type: BuildingType.headquarters,
+          coord: HexCoord(1, 3),
+          health: 10,
+        ),
+        SkirmishBuilding(
+          id: 'enemy-hq',
+          owner: Faction.enemy,
+          type: BuildingType.headquarters,
+          coord: HexCoord(6, 3),
+          health: 10,
+        ),
+        SkirmishBuilding(
+          id: 'enemy-barracks',
+          owner: Faction.enemy,
+          type: BuildingType.barracks,
+          coord: HexCoord(5, 4),
+          health: 7,
+        ),
+      ],
+      units: const [
+        SkirmishUnit(
+          id: 'enemy-scout',
+          owner: Faction.enemy,
+          type: UnitType.scout,
+          coord: HexCoord(6, 2),
+          health: 3,
+        ),
+      ],
+    );
+
+    final next = engine.endTurn(start, simpleMap);
+    final recruited = next.units.firstWhere(
+      (unit) => unit.id.startsWith('enemy-scout-'),
+    );
+
+    expect(recruited.hasActed, isTrue);
+  });
 }
