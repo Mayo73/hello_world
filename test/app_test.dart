@@ -77,4 +77,22 @@ void main() {
     expect(find.text('Move 2 AP'), findsOneWidget);
     expect(find.text('ATK 1'), findsOneWidget);
   });
+
+  testWidgets('selected building panel shows structure effects', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(MyApp(seedFactory: () => 101));
+    await tester.pump();
+
+    final gameArea = find.byKey(const Key('game-gesture-layer'));
+    final gameRect = tester.getRect(gameArea);
+    await _tapGameHex(
+      tester,
+      Offset(gameRect.center.dx - 36, gameRect.center.dy + 44),
+    );
+
+    expect(find.textContaining('Commander Mine'), findsOneWidget);
+    expect(find.text('Economic node'), findsOneWidget);
+    expect(find.text('Income +1'), findsOneWidget);
+  });
 }

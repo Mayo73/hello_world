@@ -316,6 +316,10 @@ class _GameScreenState extends State<GameScreen> {
                                           ),
                                         if (selectedTile.buildingEffectText case final effect?)
                                           Chip(label: Text(effect)),
+                                        if (selectedTile.buildingIncomeBonus case final income?)
+                                          Chip(label: Text('Income +$income')),
+                                        if (selectedTile.buildingSpawnLabel case final spawn?)
+                                          Chip(label: Text('Deploys $spawn')),
                                         Chip(
                                           label: Text('${selectedTile.biomeName} ${selectedTile.coord}'),
                                         ),
