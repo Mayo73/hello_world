@@ -415,14 +415,7 @@ class _TopBattleBar extends StatelessWidget {
           building.type == BuildingType.barracks &&
           !building.isDestroyed,
     ).firstOrNull;
-    final barracksBlocked = playerBarracks == null
-        ? false
-        : playerBarracks.coord.neighbors().every(
-            (coord) =>
-                match.units.any((unit) => unit.coord == coord && !unit.isDestroyed) ||
-                match.buildings.any((building) =>
-                    building.coord == coord && !building.isDestroyed),
-          );
+    final barracksBlocked = match.isBarracksBlocked(Faction.player);
     final hasBarracks = playerBarracks != null;
     final canRecruitScout =
         match.activeFaction == Faction.player &&

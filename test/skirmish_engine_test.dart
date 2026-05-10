@@ -90,6 +90,33 @@ void main() {
     expect(next.statusMessage, contains('barracks'));
   });
 
+  test('barracks blockage detects when all deployment hexes are occupied', () {
+    final state = engine.createInitialState(map);
+    final playerBarracks = state.buildings.firstWhere(
+      (building) =>
+          building.owner == Faction.player &&
+          building.type == BuildingType.barracks,
+    );
+
+    expect(state.isBarracksBlocked(Faction.player), isFalse);
+
+    final blockedState = state.copyWith(
+      units: [
+        ...state.units,
+        for (final coord in playerBarracks.coord.neighbors())
+          SkirmishUnit(
+            id: 'block-${coord.q}-${coord.r}',
+            owner: Faction.player,
+            type: UnitType.scout,
+            coord: coord,
+            health: 3,
+          ),
+      ],
+    );
+
+    expect(blockedState.isBarracksBlocked(Faction.player), isTrue);
+  });
+
   test('ending turn returns control to player and advances round', () {
     final state = engine.createInitialState(map);
     final next = engine.endTurn(state, map);

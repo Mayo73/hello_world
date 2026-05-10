@@ -57,6 +57,23 @@ class SkirmishMatchState {
   int readyUnitCountFor(Faction faction) =>
       unitsFor(faction).where((unit) => !unit.hasActed).length;
 
+  bool isBarracksBlocked(Faction faction) {
+    final barracks = buildingsFor(faction)
+        .where((building) => building.type == BuildingType.barracks)
+        .firstOrNull;
+    if (barracks == null) {
+      return false;
+    }
+
+    return barracks.coord.neighbors().every(
+      (coord) =>
+          units.any((unit) => unit.coord == coord && !unit.isDestroyed) ||
+          buildings.any(
+            (building) => building.coord == coord && !building.isDestroyed,
+          ),
+    );
+  }
+
   SkirmishMatchState copyWith({
     int? playerCredits,
     int? enemyCredits,
