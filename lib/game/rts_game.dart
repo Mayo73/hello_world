@@ -288,6 +288,7 @@ class RtsGame extends FlameGame {
       final unit = _unitAt(tile.coord);
       final building = _buildingAt(tile.coord);
       final center = tile.coord.toPixel(hexRadius);
+      final moveCost = reachableTiles[tile.coord];
 
       if (unit != null && unit.owner != selectedUnit.owner) {
         canvas.drawCircle(
@@ -313,11 +314,13 @@ class RtsGame extends FlameGame {
         continue;
       }
 
-      if (unit == null && building == null && reachableTiles.contains(tile.coord)) {
+      if (unit == null && building == null && moveCost != null) {
         final path = _hexPath(center, hexRadius * 0.58);
         canvas.drawPath(
           path,
-          Paint()..color = const Color(0x335ED3FF),
+          Paint()..color = moveCost >= selectedUnit.movementRange
+              ? const Color(0x405ED3FF)
+              : const Color(0x335ED3FF),
         );
         canvas.drawPath(
           path,
@@ -326,6 +329,7 @@ class RtsGame extends FlameGame {
             ..strokeWidth = 1.2
             ..color = const Color(0xAA8AE7FF),
         );
+        _drawIntentLabel(canvas, center, '$moveCost AP');
       }
     }
   }
@@ -531,32 +535,49 @@ class RtsGame extends FlameGame {
     _pushHudSelection(tileAt: tile, unit: _unitAt(selectedCoord), building: _buildingAt(selectedCoord));
   }
 
-  Set<HexCoord> _reachableTilesFor(SkirmishUnit unit) {
-    final visited = <HexCoord>{unit.coord};
-    final frontier = <({HexCoord coord, int steps})>[(coord: unit.coord, steps: 0)];
-    final reachable = <HexCoord>{};
+  Map<HexCoord, int> _reachableTilesFor(SkirmishUnit unit) {
+    final bestCost = <HexCoord, int>{unit.coord: 0};
+    final frontier = <({HexCoord coord, int costUsed})>[
+      (coord: unit.coord, costUsed: 0),
+    ];
+    final reachable = <HexCoord, int>{};
 
     while (frontier.isNotEmpty) {
+      frontier.sort((a, b) => a.costUsed.compareTo(b.costUsed));
       final current = frontier.removeAt(0);
-      if (current.steps >= unit.movementRange) {
+      final knownCost = bestCost[current.coord];
+      if (knownCost != current.costUsed) {
         continue;
       }
 
       for (final neighbor in current.coord.neighbors()) {
-        if (!_worldMap.contains(neighbor) || visited.contains(neighbor)) {
+        if (!_worldMap.contains(neighbor)) {
           continue;
         }
-        visited.add(neighbor);
 
         final tile = _worldMap.tileAt(neighbor);
-        if (!(tile?.isPassable ?? false) ||
-            _unitAt(neighbor) != null ||
-            _buildingAt(neighbor) != null) {
+        final movementCost = tile?.movementCost;
+        if (!(tile?.isPassable ?? false) || movementCost == null) {
           continue;
         }
 
-        reachable.add(neighbor);
-        frontier.add((coord: neighbor, steps: current.steps + 1));
+        if (_unitAt(neighbor) != null || _buildingAt(neighbor) != null) {
+          continue;
+        }
+
+        final nextCost = current.costUsed + movementCost;
+        if (nextCost > unit.movementRange) {
+          continue;
+        }
+
+        final previousBest = bestCost[neighbor];
+        if (previousBest != null && previousBest <= nextCost) {
+          continue;
+        }
+
+        bestCost[neighbor] = nextCost;
+        reachable[neighbor] = nextCost;
+        frontier.add((coord: neighbor, costUsed: nextCost));
       }
     }
 
