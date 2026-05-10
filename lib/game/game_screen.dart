@@ -393,6 +393,8 @@ class _TopBattleBar extends StatelessWidget {
     final selectedUnit = match.selectedUnit;
     final playerIncome = match.incomeFor(Faction.player);
     final enemyIncome = match.incomeFor(Faction.enemy);
+    final playerMines = match.mineCountFor(Faction.player);
+    final enemyMines = match.mineCountFor(Faction.enemy);
     final playerBarracks = match.buildings.where(
       (building) =>
           building.owner == Faction.player &&
@@ -470,8 +472,10 @@ class _TopBattleBar extends StatelessWidget {
         Chip(label: Text(match.activeFaction == Faction.player ? 'Your turn' : 'Enemy turn')),
         Chip(label: Text('Credits ${match.playerCredits}')),
         Chip(label: Text('Income +$playerIncome')),
+        Chip(label: Text('Mines $playerMines')),
         Chip(label: Text('Enemy ${match.enemyCredits}')),
         Chip(label: Text('Enemy +$enemyIncome')),
+        Chip(label: Text('Enemy mines $enemyMines')),
         Chip(label: Text('Units $playerUnits')),
         Chip(label: Text('Enemy units $enemyUnits')),
         Chip(label: Text('Ready $readyPlayerUnits')),

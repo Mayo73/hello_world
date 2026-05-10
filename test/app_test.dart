@@ -20,7 +20,9 @@ void main() {
     expect(find.byKey(const Key('seed-text')), findsOneWidget);
     expect(find.textContaining('Seed 101'), findsOneWidget);
     expect(find.text('Income +3'), findsOneWidget);
+    expect(find.text('Mines 1'), findsOneWidget);
     expect(find.text('Enemy +3'), findsOneWidget);
+    expect(find.text('Enemy mines 1'), findsOneWidget);
     expect(find.textContaining('Tippe auf ein Feld'), findsNothing);
     expect(find.textContaining('Mines raise your income each turn'), findsNothing);
 
