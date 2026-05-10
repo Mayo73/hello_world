@@ -297,7 +297,7 @@ class _GameScreenState extends State<GameScreen> {
                                       children: [
                                         Chip(
                                           label: Text(
-                                            'HP ${selectedTile.unitHealth ?? selectedTile.buildingHealth}',
+                                            'HP ${selectedTile.unitHealth ?? selectedTile.buildingHealth}/${selectedTile.unitMaxHealth ?? selectedTile.buildingMaxHealth}',
                                           ),
                                         ),
                                         if (selectedTile.unitType != null)

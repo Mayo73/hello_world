@@ -74,6 +74,7 @@ void main() {
     );
 
     expect(find.textContaining('Commander Scout'), findsOneWidget);
+    expect(find.text('HP 3/3'), findsOneWidget);
     expect(find.text('Move 2 AP'), findsOneWidget);
     expect(find.text('ATK 1'), findsOneWidget);
   });
@@ -92,6 +93,7 @@ void main() {
     );
 
     expect(find.textContaining('Commander Mine'), findsOneWidget);
+    expect(find.text('HP 6/6'), findsOneWidget);
     expect(find.text('Economic node'), findsOneWidget);
     expect(find.text('Income +1'), findsOneWidget);
   });

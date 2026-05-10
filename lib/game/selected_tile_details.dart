@@ -13,12 +13,14 @@ class SelectedTileDetails {
     this.unitOwner,
     this.unitType,
     this.unitHealth,
+    this.unitMaxHealth,
     this.unitReady = false,
     this.unitAttack,
     this.unitMoveAp,
     this.buildingOwner,
     this.buildingType,
     this.buildingHealth,
+    this.buildingMaxHealth,
     this.buildingEffectText,
     this.buildingIncomeBonus,
     this.buildingSpawnLabel,
@@ -44,12 +46,19 @@ class SelectedTileDetails {
       unitOwner: unitOwner,
       unitType: unitType,
       unitHealth: unitHealth,
+      unitMaxHealth: unitType?.maxHealth,
       unitReady: unitReady,
       unitAttack: unitType?.attack,
       unitMoveAp: unitType == null ? null : (unitType == UnitType.scout ? 2 : 1),
       buildingOwner: buildingOwner,
       buildingType: buildingType,
       buildingHealth: buildingHealth,
+      buildingMaxHealth: switch (buildingType) {
+        BuildingType.headquarters => 10,
+        BuildingType.mine => 6,
+        BuildingType.barracks => 7,
+        null => null,
+      },
       buildingEffectText: switch (buildingType) {
         BuildingType.headquarters => 'Critical target',
         BuildingType.mine => 'Economic node',
@@ -70,12 +79,14 @@ class SelectedTileDetails {
   final Faction? unitOwner;
   final UnitType? unitType;
   final int? unitHealth;
+  final int? unitMaxHealth;
   final bool unitReady;
   final int? unitAttack;
   final int? unitMoveAp;
   final Faction? buildingOwner;
   final BuildingType? buildingType;
   final int? buildingHealth;
+  final int? buildingMaxHealth;
   final String? buildingEffectText;
   final int? buildingIncomeBonus;
   final String? buildingSpawnLabel;
