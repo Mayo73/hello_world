@@ -47,6 +47,13 @@ class SkirmishMatchState {
   Iterable<SkirmishUnit> unitsFor(Faction faction) =>
       units.where((unit) => unit.owner == faction && !unit.isDestroyed);
 
+  int mineCountFor(Faction faction) =>
+      buildingsFor(faction)
+          .where((building) => building.type == BuildingType.mine)
+          .length;
+
+  int incomeFor(Faction faction) => 2 + mineCountFor(faction);
+
   SkirmishMatchState copyWith({
     int? playerCredits,
     int? enemyCredits,

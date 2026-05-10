@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import '../main.dart';
 import 'game_hud_controller.dart';
 import 'rts_game.dart';
+import 'selected_tile_details.dart';
 import 'skirmish/building_type.dart';
 import 'skirmish/faction.dart';
 import 'skirmish/unit_type.dart';
@@ -319,6 +320,11 @@ class _GameScreenState extends State<GameScreen> {
                                       'Bewegung: ${selectedTile.movementText}',
                                       style: textTheme.bodyMedium,
                                     ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      _selectionHint(selectedTile),
+                                      style: textTheme.bodySmall,
+                                    ),
                                   ],
                                 ),
                               ),
@@ -334,6 +340,25 @@ class _GameScreenState extends State<GameScreen> {
         ],
       ),
     );
+  }
+
+  String _selectionHint(SelectedTileDetails selectedTile) {
+    if (selectedTile.unitType != null) {
+      return switch (selectedTile.unitType!) {
+        UnitType.scout => 'Fast skirmisher. Best for flanks, screening, and finishing weakened targets.',
+        UnitType.tank => 'Slow heavy unit. Stronger hit, better for breaking lines and HQ pressure.',
+      };
+    }
+
+    if (selectedTile.buildingType != null) {
+      return switch (selectedTile.buildingType!) {
+        BuildingType.headquarters => 'Lose this and the match ends. Protect it while opening a path to the enemy HQ.',
+        BuildingType.mine => 'Economic node. Each surviving mine adds +1 income every turn.',
+        BuildingType.barracks => 'Production building. New scouts and tanks deploy on adjacent free tiles.',
+      };
+    }
+
+    return 'No tactical detail available.';
   }
 
   BoxDecoration _panelDecoration() {
@@ -366,24 +391,8 @@ class _TopBattleBar extends StatelessWidget {
     final playerUnits = match.unitsFor(Faction.player).length;
     final enemyUnits = match.unitsFor(Faction.enemy).length;
     final selectedUnit = match.selectedUnit;
-    final playerIncome = 2 +
-        match.buildings
-            .where(
-              (building) =>
-                  building.owner == Faction.player &&
-                  building.type == BuildingType.mine &&
-                  !building.isDestroyed,
-            )
-            .length;
-    final enemyIncome = 2 +
-        match.buildings
-            .where(
-              (building) =>
-                  building.owner == Faction.enemy &&
-                  building.type == BuildingType.mine &&
-                  !building.isDestroyed,
-            )
-            .length;
+    final playerIncome = match.incomeFor(Faction.player);
+    final enemyIncome = match.incomeFor(Faction.enemy);
     final playerBarracks = match.buildings.where(
       (building) =>
           building.owner == Faction.player &&

@@ -22,6 +22,7 @@ void main() {
     expect(find.text('Income +3'), findsOneWidget);
     expect(find.text('Enemy +3'), findsOneWidget);
     expect(find.textContaining('Tippe auf ein Feld'), findsNothing);
+    expect(find.textContaining('Mines raise your income each turn'), findsNothing);
 
     await tester.tap(find.byKey(const Key('regenerate-button')));
     await tester.pump();

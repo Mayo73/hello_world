@@ -37,6 +37,24 @@ void main() {
     expect(next.units.where((u) => u.owner == Faction.player).length, 2);
   });
 
+  test('income reflects surviving mines for each faction', () {
+    final state = engine.createInitialState(map);
+
+    expect(state.mineCountFor(Faction.player), 1);
+    expect(state.mineCountFor(Faction.enemy), 1);
+    expect(state.incomeFor(Faction.player), 3);
+    expect(state.incomeFor(Faction.enemy), 3);
+
+    final withoutEnemyMine = state.copyWith(
+      buildings: state.buildings
+          .where((building) => building.id != 'enemy-mine')
+          .toList(growable: false),
+    );
+
+    expect(withoutEnemyMine.mineCountFor(Faction.enemy), 0);
+    expect(withoutEnemyMine.incomeFor(Faction.enemy), 2);
+  });
+
   test('player recruitment fails cleanly when barracks is destroyed', () {
     final state = engine.createInitialState(map);
     final withoutBarracks = state.copyWith(
