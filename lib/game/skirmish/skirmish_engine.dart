@@ -465,10 +465,16 @@ class SkirmishEngine {
         return aCanHitUnit ? -1 : 1;
       }
 
-      final aCanHitBuilding = playerBuildings.any((building) => a.distanceTo(building.coord) <= 1);
-      final bCanHitBuilding = playerBuildings.any((building) => b.distanceTo(building.coord) <= 1);
-      if (aCanHitBuilding != bCanHitBuilding) {
-        return aCanHitBuilding ? -1 : 1;
+      final aBuildingThreat = _bestThreatenedBuildingPriority(a, playerBuildings);
+      final bBuildingThreat = _bestThreatenedBuildingPriority(b, playerBuildings);
+      if (aBuildingThreat != bBuildingThreat) {
+        return aBuildingThreat.compareTo(bBuildingThreat);
+      }
+
+      final aBestBuildingDistance = _bestBuildingDistance(a, playerBuildings);
+      final bBestBuildingDistance = _bestBuildingDistance(b, playerBuildings);
+      if (aBestBuildingDistance != bBestBuildingDistance) {
+        return aBestBuildingDistance.compareTo(bBestBuildingDistance);
       }
 
       final hqDistance = a.distanceTo(playerHq).compareTo(b.distanceTo(playerHq));
@@ -480,6 +486,34 @@ class SkirmishEngine {
     });
 
     return moveOptions.first;
+  }
+
+  int _bestThreatenedBuildingPriority(
+    HexCoord coord,
+    List<SkirmishBuilding> buildings,
+  ) {
+    var bestPriority = 99;
+    for (final building in buildings) {
+      if (coord.distanceTo(building.coord) <= 1) {
+        final priority = _buildingTargetPriority(building);
+        if (priority < bestPriority) {
+          bestPriority = priority;
+        }
+      }
+    }
+    return bestPriority;
+  }
+
+  int _bestBuildingDistance(HexCoord coord, List<SkirmishBuilding> buildings) {
+    var bestScore = 999;
+    for (final building in buildings) {
+      final distanceScore =
+          (coord.distanceTo(building.coord) * 10) + _buildingTargetPriority(building);
+      if (distanceScore < bestScore) {
+        bestScore = distanceScore;
+      }
+    }
+    return bestScore;
   }
 
   SkirmishMatchState _checkVictory(SkirmishMatchState state) {

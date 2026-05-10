@@ -432,6 +432,76 @@ void main() {
     expect(barracks.health, 3);
   });
 
+  test('enemy movement leans toward mines before barracks when both are viable', () {
+    final simpleMap = WorldMapData(
+      width: 7,
+      height: 7,
+      seed: 22,
+      tiles: {
+        for (var q = 0; q < 7; q++)
+          for (var r = 0; r < 7; r++)
+            HexCoord(q, r): WorldTile(
+              coord: HexCoord(q, r),
+              biome: TileBiome.plains,
+              isPassable: true,
+              movementCost: 1,
+            ),
+      },
+    );
+    engine.createInitialState(simpleMap);
+
+    final start = SkirmishMatchState(
+      playerCredits: 0,
+      enemyCredits: 0,
+      turn: 1,
+      activeFaction: Faction.player,
+      buildings: const [
+        SkirmishBuilding(
+          id: 'player-hq',
+          owner: Faction.player,
+          type: BuildingType.headquarters,
+          coord: HexCoord(0, 0),
+          health: 10,
+        ),
+        SkirmishBuilding(
+          id: 'player-mine',
+          owner: Faction.player,
+          type: BuildingType.mine,
+          coord: HexCoord(3, 1),
+          health: 6,
+        ),
+        SkirmishBuilding(
+          id: 'player-barracks',
+          owner: Faction.player,
+          type: BuildingType.barracks,
+          coord: HexCoord(2, 3),
+          health: 7,
+        ),
+        SkirmishBuilding(
+          id: 'enemy-hq',
+          owner: Faction.enemy,
+          type: BuildingType.headquarters,
+          coord: HexCoord(6, 6),
+          health: 10,
+        ),
+      ],
+      units: const [
+        SkirmishUnit(
+          id: 'enemy-scout',
+          owner: Faction.enemy,
+          type: UnitType.scout,
+          coord: HexCoord(4, 2),
+          health: 3,
+        ),
+      ],
+    );
+
+    final next = engine.endTurn(start, simpleMap);
+    final scout = next.units.firstWhere((unit) => unit.id == 'enemy-scout');
+
+    expect(scout.coord, const HexCoord(4, 1));
+  });
+
   test('enemy recruitment prefers scouts when outnumbered', () {
     final simpleMap = WorldMapData(
       width: 7,
