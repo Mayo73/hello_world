@@ -82,8 +82,8 @@ class _GameScreenState extends State<GameScreen> {
                   '1. Tap your unit to select it.\n'
                   '2. Blue hexes show movement, red markers show unit attacks, orange markers show building attacks.\n'
                   '3. Forest tiles cost 2 AP, plains cost 1 AP, so routes matter.\n'
-                  '4. Tap a highlighted tile or adjacent enemy to act.\n'
-                  '5. Recruit scouts or tanks from the top controls, then destroy the enemy HQ first.',
+                  '4. Mines raise your income each turn, so protect yours and pressure theirs.\n'
+                  '5. Tap a highlighted tile or adjacent enemy to act, recruit from the top controls, then destroy the enemy HQ first.',
                   style: textTheme.bodyMedium,
                 ),
               ],
@@ -366,6 +366,24 @@ class _TopBattleBar extends StatelessWidget {
     final playerUnits = match.unitsFor(Faction.player).length;
     final enemyUnits = match.unitsFor(Faction.enemy).length;
     final selectedUnit = match.selectedUnit;
+    final playerIncome = 2 +
+        match.buildings
+            .where(
+              (building) =>
+                  building.owner == Faction.player &&
+                  building.type == BuildingType.mine &&
+                  !building.isDestroyed,
+            )
+            .length;
+    final enemyIncome = 2 +
+        match.buildings
+            .where(
+              (building) =>
+                  building.owner == Faction.enemy &&
+                  building.type == BuildingType.mine &&
+                  !building.isDestroyed,
+            )
+            .length;
     final playerBarracks = match.buildings.where(
       (building) =>
           building.owner == Faction.player &&
@@ -442,7 +460,9 @@ class _TopBattleBar extends StatelessWidget {
         Chip(label: Text('Turn ${match.turn}')),
         Chip(label: Text(match.activeFaction == Faction.player ? 'Your turn' : 'Enemy turn')),
         Chip(label: Text('Credits ${match.playerCredits}')),
+        Chip(label: Text('Income +$playerIncome')),
         Chip(label: Text('Enemy ${match.enemyCredits}')),
+        Chip(label: Text('Enemy +$enemyIncome')),
         Chip(label: Text('Units $playerUnits')),
         Chip(label: Text('Enemy units $enemyUnits')),
         Chip(label: Text('Ready $readyPlayerUnits')),
