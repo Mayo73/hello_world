@@ -220,21 +220,25 @@ class SkirmishEngine {
     }
 
     if (state.activeFaction == Faction.player) {
+      final playerIncome = _incomeFor(state, Faction.player);
       final prepared = state.copyWith(
         activeFaction: Faction.enemy,
         clearSelection: true,
-        playerCredits: state.playerCredits + _incomeFor(state, Faction.player),
+        playerCredits: state.playerCredits + playerIncome,
         units: state.units.map((unit) => unit.owner == Faction.enemy ? unit.copyWith(hasActed: false) : unit).toList(growable: false),
-        statusMessage: 'Enemy turn...',
+        statusMessage: 'Enemy turn. You collected +$playerIncome credits.',
         phaseLabel: 'Enemy planning',
       );
       final afterAi = _runEnemyTurn(prepared, map);
+      final enemyIncome = _incomeFor(afterAi, Faction.enemy);
       return _checkVictory(afterAi.copyWith(
         activeFaction: Faction.player,
         turn: prepared.turn + 1,
-        enemyCredits: afterAi.enemyCredits + _incomeFor(afterAi, Faction.enemy),
+        enemyCredits: afterAi.enemyCredits + enemyIncome,
         units: afterAi.units.map((unit) => unit.owner == Faction.player ? unit.copyWith(hasActed: false) : unit).toList(growable: false),
-        statusMessage: afterAi.winner == null ? 'Your turn. Build pressure and break the HQ.' : afterAi.statusMessage,
+        statusMessage: afterAi.winner == null
+            ? 'Your turn. +$playerIncome credits collected, enemy gained +$enemyIncome. Build pressure and break the HQ.'
+            : afterAi.statusMessage,
         phaseLabel: afterAi.winner == null ? 'Command phase' : afterAi.phaseLabel,
       ));
     }

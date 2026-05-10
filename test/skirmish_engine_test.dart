@@ -80,6 +80,14 @@ void main() {
     expect(next.turn, 2);
   });
 
+  test('end turn reports income gained for both sides', () {
+    final state = engine.createInitialState(map);
+    final next = engine.endTurn(state, map);
+
+    expect(next.statusMessage, contains('+3 credits collected'));
+    expect(next.statusMessage, contains('enemy gained +3'));
+  });
+
   test('enemy scout uses full movement range on open ground', () {
     final simpleMap = WorldMapData(
       width: 7,
