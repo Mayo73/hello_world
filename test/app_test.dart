@@ -95,4 +95,22 @@ void main() {
     expect(find.text('Economic node'), findsOneWidget);
     expect(find.text('Income +1'), findsOneWidget);
   });
+
+  testWidgets('selected barracks panel shows production effect', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(MyApp(seedFactory: () => 101));
+    await tester.pump();
+
+    final gameArea = find.byKey(const Key('game-gesture-layer'));
+    final gameRect = tester.getRect(gameArea);
+    await _tapGameHex(
+      tester,
+      Offset(gameRect.center.dx - 109, gameRect.center.dy + 94),
+    );
+
+    expect(find.textContaining('Commander Barracks'), findsOneWidget);
+    expect(find.text('Production building'), findsOneWidget);
+    expect(find.text('Deploys Scout, Tank'), findsOneWidget);
+  });
 }
