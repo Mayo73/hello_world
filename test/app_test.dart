@@ -113,4 +113,22 @@ void main() {
     expect(find.text('Production building'), findsOneWidget);
     expect(find.text('Deploys Scout, Tank'), findsOneWidget);
   });
+
+  testWidgets('selected HQ panel shows critical target effect', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(MyApp(seedFactory: () => 101));
+    await tester.pump();
+
+    final gameArea = find.byKey(const Key('game-gesture-layer'));
+    final gameRect = tester.getRect(gameArea);
+    await _tapGameHex(
+      tester,
+      Offset(gameRect.center.dx - 88, gameRect.center.dy - 8),
+    );
+
+    expect(find.textContaining('Commander HQ'), findsOneWidget);
+    expect(find.text('Critical target'), findsOneWidget);
+    expect(find.textContaining('Lose this and the match ends'), findsOneWidget);
+  });
 }
