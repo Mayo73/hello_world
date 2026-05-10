@@ -30,4 +30,21 @@ void main() {
     expect(find.textContaining('Seed 202'), findsOneWidget);
     expect(find.byType(GestureDetector), findsWidgets);
   });
+
+  testWidgets('quick help explains terrain and income rules on demand', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(MyApp(seedFactory: () => 303));
+    await tester.pump();
+
+    expect(find.text('Quick help'), findsNothing);
+
+    await tester.tap(find.byIcon(Icons.help_outline_rounded));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Quick help'), findsOneWidget);
+    expect(find.textContaining('Forest tiles cost 2 AP'), findsOneWidget);
+    expect(find.textContaining('Mines raise your income each turn'), findsOneWidget);
+    expect(find.textContaining('destroy the enemy HQ first'), findsOneWidget);
+  });
 }
