@@ -95,6 +95,29 @@ void main() {
     expect(find.text('End turn'), findsOneWidget);
   });
 
+  testWidgets('spending the only ready unit highlights end turn', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(MyApp(seedFactory: () => 101));
+    await tester.pump();
+
+    final gameArea = find.byKey(const Key('game-gesture-layer'));
+    final gameRect = tester.getRect(gameArea);
+    await _tapGameHex(
+      tester,
+      Offset(gameRect.center.dx - 85, gameRect.center.dy + 45),
+    );
+    await _tapGameHex(
+      tester,
+      Offset(gameRect.center.dx - 33, gameRect.center.dy + 47),
+    );
+
+    expect(find.text('Ready 0'), findsOneWidget);
+    expect(find.text('No ready units, end turn'), findsOneWidget);
+    expect(find.text('End turn now'), findsOneWidget);
+    expect(find.textContaining('Commander Scout moved.'), findsOneWidget);
+  });
+
   testWidgets('selected unit panel shows combat and movement stats', (
     WidgetTester tester,
   ) async {
