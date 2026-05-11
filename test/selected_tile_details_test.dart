@@ -49,4 +49,33 @@ void main() {
     expect(details.movementText, '1 AP');
     expect(details.passabilityText, 'Passierbar');
   });
+
+  test('fromTile derives tank combat details', () {
+    final tile = WorldTile(
+      coord: const HexCoord(5, 2),
+      biome: TileBiome.forest,
+      isPassable: true,
+      movementCost: 2,
+    );
+
+    final details = SelectedTileDetails.fromTile(
+      tile,
+      unitOwner: Faction.enemy,
+      unitType: UnitType.tank,
+      unitHealth: 4,
+      unitReady: false,
+    );
+
+    expect(details.hasInspectableTarget, isTrue);
+    expect(details.unitOwner, Faction.enemy);
+    expect(details.unitType, UnitType.tank);
+    expect(details.unitHealth, 4);
+    expect(details.unitMaxHealth, 5);
+    expect(details.unitReady, isFalse);
+    expect(details.unitAttack, 2);
+    expect(details.unitMoveAp, 1);
+    expect(details.buildingType, isNull);
+    expect(details.movementText, '2 AP');
+    expect(details.passabilityText, 'Passierbar');
+  });
 }
