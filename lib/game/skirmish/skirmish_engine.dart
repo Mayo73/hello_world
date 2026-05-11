@@ -10,8 +10,6 @@ import 'unit_type.dart';
 class SkirmishEngine {
   const SkirmishEngine();
 
-  static const int scoutCost = 3;
-  static const int tankCost = 5;
   static WorldMapData? _cachedMap;
 
   SkirmishMatchState createInitialState(WorldMapData map) {
@@ -105,7 +103,7 @@ class SkirmishEngine {
       return state;
     }
 
-    final cost = type == UnitType.scout ? scoutCost : tankCost;
+    final cost = type.recruitCost;
     if (state.playerCredits < cost) {
       return state.copyWith(statusMessage: 'Not enough credits for ${type.displayName}.');
     }

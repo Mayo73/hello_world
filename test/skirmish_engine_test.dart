@@ -33,7 +33,7 @@ void main() {
     final state = engine.createInitialState(map);
     final next = engine.recruitUnit(state, UnitType.scout);
 
-    expect(next.playerCredits, lessThan(state.playerCredits));
+    expect(next.playerCredits, state.playerCredits - UnitType.scout.recruitCost);
     expect(next.units.where((u) => u.owner == Faction.player).length, 2);
   });
 
