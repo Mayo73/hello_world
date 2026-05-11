@@ -78,4 +78,39 @@ void main() {
     expect(details.movementText, '2 AP');
     expect(details.passabilityText, 'Passierbar');
   });
+
+  test('value equality reflects derived tile details', () {
+    final tile = WorldTile(
+      coord: const HexCoord(5, 2),
+      biome: TileBiome.forest,
+      isPassable: true,
+      movementCost: 2,
+    );
+
+    final first = SelectedTileDetails.fromTile(
+      tile,
+      unitOwner: Faction.enemy,
+      unitType: UnitType.tank,
+      unitHealth: 4,
+      unitReady: false,
+    );
+    final second = SelectedTileDetails.fromTile(
+      tile,
+      unitOwner: Faction.enemy,
+      unitType: UnitType.tank,
+      unitHealth: 4,
+      unitReady: false,
+    );
+    final changed = SelectedTileDetails.fromTile(
+      tile,
+      unitOwner: Faction.enemy,
+      unitType: UnitType.tank,
+      unitHealth: 3,
+      unitReady: false,
+    );
+
+    expect(first, second);
+    expect(first.hashCode, second.hashCode);
+    expect(first, isNot(changed));
+  });
 }
