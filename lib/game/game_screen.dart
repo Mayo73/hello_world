@@ -409,26 +409,10 @@ class _TopBattleBar extends StatelessWidget {
     final enemyIncome = match.incomeFor(Faction.enemy);
     final playerMines = match.mineCountFor(Faction.player);
     final enemyMines = match.mineCountFor(Faction.enemy);
-    final playerBarracks = match.buildings.where(
-      (building) =>
-          building.owner == Faction.player &&
-          building.type == BuildingType.barracks &&
-          !building.isDestroyed,
-    ).firstOrNull;
+    final hasBarracks = match.hasActiveBarracks(Faction.player);
     final barracksBlocked = match.isBarracksBlocked(Faction.player);
-    final hasBarracks = playerBarracks != null;
-    final canRecruitScout =
-        match.activeFaction == Faction.player &&
-        !match.isFinished &&
-        hasBarracks &&
-        match.playerCredits >= 3 &&
-        !barracksBlocked;
-    final canRecruitTank =
-        match.activeFaction == Faction.player &&
-        !match.isFinished &&
-        hasBarracks &&
-        match.playerCredits >= 5 &&
-        !barracksBlocked;
+    final canRecruitScout = match.canRecruitUnit(Faction.player, UnitType.scout);
+    final canRecruitTank = match.canRecruitUnit(Faction.player, UnitType.tank);
     final readyPlayerUnits = match.readyUnitCountFor(Faction.player);
     final playerHq = match.buildings.where(
       (building) =>
@@ -521,12 +505,12 @@ class _TopBattleBar extends StatelessWidget {
           icon: const Icon(Icons.directions_run_rounded),
           label: Text(
             canRecruitScout
-                ? 'Scout 3'
+                ? 'Scout ${UnitType.scout.recruitCost}'
                 : !hasBarracks
                     ? 'No barracks'
                     : barracksBlocked
                         ? 'Scout blocked'
-                        : 'Scout needs 3',
+                        : 'Scout needs ${UnitType.scout.recruitCost}',
           ),
         ),
         FilledButton.tonalIcon(
@@ -536,12 +520,12 @@ class _TopBattleBar extends StatelessWidget {
           icon: const Icon(Icons.shield_rounded),
           label: Text(
             canRecruitTank
-                ? 'Tank 5'
+                ? 'Tank ${UnitType.tank.recruitCost}'
                 : !hasBarracks
                     ? 'No barracks'
                     : barracksBlocked
                         ? 'Tank blocked'
-                        : 'Tank needs 5',
+                        : 'Tank needs ${UnitType.tank.recruitCost}',
           ),
         ),
         FilledButton.icon(

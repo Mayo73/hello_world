@@ -57,6 +57,9 @@ class SkirmishMatchState {
   int readyUnitCountFor(Faction faction) =>
       unitsFor(faction).where((unit) => !unit.hasActed).length;
 
+  bool hasActiveBarracks(Faction faction) =>
+      buildingsFor(faction).any((building) => building.type == BuildingType.barracks);
+
   bool isBarracksBlocked(Faction faction) {
     final barracks = buildingsFor(faction)
         .where((building) => building.type == BuildingType.barracks)
@@ -72,6 +75,16 @@ class SkirmishMatchState {
             (building) => building.coord == coord && !building.isDestroyed,
           ),
     );
+  }
+
+  bool canRecruitUnit(Faction faction, UnitType unitType) {
+    if (activeFaction != faction || isFinished) {
+      return false;
+    }
+
+    return hasActiveBarracks(faction) &&
+        !isBarracksBlocked(faction) &&
+        creditsFor(faction) >= unitType.recruitCost;
   }
 
   SkirmishMatchState copyWith({

@@ -117,6 +117,46 @@ void main() {
     expect(blockedState.isBarracksBlocked(Faction.player), isTrue);
   });
 
+  test('recruit availability reflects turn, credits, barracks, and blockage', () {
+    final state = engine.createInitialState(map);
+
+    expect(state.canRecruitUnit(Faction.player, UnitType.scout), isTrue);
+    expect(state.canRecruitUnit(Faction.player, UnitType.tank), isTrue);
+    expect(state.canRecruitUnit(Faction.enemy, UnitType.scout), isFalse);
+
+    final lowCredits = state.copyWith(playerCredits: 2);
+    expect(lowCredits.canRecruitUnit(Faction.player, UnitType.scout), isFalse);
+
+    final withoutBarracks = state.copyWith(
+      buildings: state.buildings
+          .where((building) =>
+              !(building.owner == Faction.player &&
+                  building.type == BuildingType.barracks))
+          .toList(growable: false),
+    );
+    expect(withoutBarracks.canRecruitUnit(Faction.player, UnitType.scout), isFalse);
+
+    final playerBarracks = state.buildings.firstWhere(
+      (building) =>
+          building.owner == Faction.player &&
+          building.type == BuildingType.barracks,
+    );
+    final blockedState = state.copyWith(
+      units: [
+        ...state.units,
+        for (final coord in playerBarracks.coord.neighbors())
+          SkirmishUnit(
+            id: 'block-recruit-${coord.q}-${coord.r}',
+            owner: Faction.player,
+            type: UnitType.scout,
+            coord: coord,
+            health: 3,
+          ),
+      ],
+    );
+    expect(blockedState.canRecruitUnit(Faction.player, UnitType.scout), isFalse);
+  });
+
   test('ending turn returns control to player and advances round', () {
     final state = engine.createInitialState(map);
     final next = engine.endTurn(state, map);
