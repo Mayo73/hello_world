@@ -64,6 +64,21 @@ void main() {
     expect(find.textContaining('destroy the enemy HQ first'), findsOneWidget);
   });
 
+  testWidgets('recruit buttons reflect reduced credits after deployment', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(MyApp(seedFactory: () => 101));
+    await tester.pump();
+
+    await tester.tap(find.text('Tank 5'));
+    await tester.pump();
+
+    expect(find.text('Credits 1'), findsOneWidget);
+    expect(find.text('Scout needs 3'), findsOneWidget);
+    expect(find.text('Tank needs 5'), findsOneWidget);
+    expect(find.textContaining('Tank deployed near the barracks.'), findsOneWidget);
+  });
+
   testWidgets('selected unit panel shows combat and movement stats', (
     WidgetTester tester,
   ) async {
