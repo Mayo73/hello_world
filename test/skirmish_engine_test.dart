@@ -156,6 +156,8 @@ void main() {
     final lowCredits = state.copyWith(playerCredits: 2);
     expect(lowCredits.canRecruitUnit(Faction.player, UnitType.scout), isFalse);
     expect(lowCredits.recruitLabelFor(Faction.player, UnitType.scout), 'Scout needs 3');
+    expect(lowCredits.canRecruitUnit(Faction.player, UnitType.tank), isFalse);
+    expect(lowCredits.recruitLabelFor(Faction.player, UnitType.tank), 'Tank needs 5');
 
     final withoutBarracks = state.copyWith(
       buildings: state.buildings
@@ -166,6 +168,8 @@ void main() {
     );
     expect(withoutBarracks.canRecruitUnit(Faction.player, UnitType.scout), isFalse);
     expect(withoutBarracks.recruitLabelFor(Faction.player, UnitType.scout), 'No barracks');
+    expect(withoutBarracks.canRecruitUnit(Faction.player, UnitType.tank), isFalse);
+    expect(withoutBarracks.recruitLabelFor(Faction.player, UnitType.tank), 'No barracks');
 
     final playerBarracks = state.buildings.firstWhere(
       (building) =>
@@ -187,6 +191,8 @@ void main() {
     );
     expect(blockedState.canRecruitUnit(Faction.player, UnitType.scout), isFalse);
     expect(blockedState.recruitLabelFor(Faction.player, UnitType.scout), 'Scout blocked');
+    expect(blockedState.canRecruitUnit(Faction.player, UnitType.tank), isFalse);
+    expect(blockedState.recruitLabelFor(Faction.player, UnitType.tank), 'Tank blocked');
   });
 
   test('end-turn availability reflects active faction and finished matches', () {
