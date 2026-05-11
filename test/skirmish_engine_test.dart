@@ -62,6 +62,7 @@ void main() {
     expect(state.unitCountFor(Faction.enemy), 1);
     expect(state.readyUnitCountFor(Faction.player), 1);
     expect(state.readyUnitCountFor(Faction.enemy), 1);
+    expect(state.hasReadyUnits(Faction.player), isTrue);
 
     final spentPlayerScout = state.copyWith(
       units: state.units
@@ -74,6 +75,7 @@ void main() {
     expect(spentPlayerScout.unitCountFor(Faction.player), 1);
     expect(spentPlayerScout.readyUnitCountFor(Faction.player), 0);
     expect(spentPlayerScout.readyUnitCountFor(Faction.enemy), 1);
+    expect(spentPlayerScout.hasReadyUnits(Faction.player), isFalse);
   });
 
   test('headquarters helper ignores destroyed HQs', () {

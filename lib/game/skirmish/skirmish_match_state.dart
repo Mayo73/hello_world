@@ -59,6 +59,8 @@ class SkirmishMatchState {
   int readyUnitCountFor(Faction faction) =>
       unitsFor(faction).where((unit) => !unit.hasActed).length;
 
+  bool hasReadyUnits(Faction faction) => readyUnitCountFor(faction) > 0;
+
   bool hasActiveBarracks(Faction faction) =>
       buildingsFor(faction).any((building) => building.type == BuildingType.barracks);
 

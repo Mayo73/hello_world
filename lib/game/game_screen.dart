@@ -414,6 +414,7 @@ class _TopBattleBar extends StatelessWidget {
     final canRecruitScout = match.canRecruitUnit(Faction.player, UnitType.scout);
     final canRecruitTank = match.canRecruitUnit(Faction.player, UnitType.tank);
     final readyPlayerUnits = match.readyUnitCountFor(Faction.player);
+    final playerHasReadyUnits = match.hasReadyUnits(Faction.player);
     final playerHq = match.headquartersBuildingFor(Faction.player);
     final enemyHq = match.headquartersBuildingFor(Faction.enemy);
 
@@ -478,7 +479,7 @@ class _TopBattleBar extends StatelessWidget {
               'Selected ${selectedUnit.type.displayName} ${selectedUnit.health}/${selectedUnit.maxHealth} • Move ${selectedUnit.movementRange} AP • ATK ${selectedUnit.attack} • ${selectedUnit.hasActed ? 'Spent' : 'Ready'}',
             ),
           ),
-        if (readyPlayerUnits == 0 &&
+        if (!playerHasReadyUnits &&
             match.activeFaction == Faction.player &&
             !match.isFinished)
           const Chip(label: Text('No ready units, end turn')),
@@ -519,7 +520,7 @@ class _TopBattleBar extends StatelessWidget {
           ),
         ),
         FilledButton.icon(
-          style: readyPlayerUnits == 0 &&
+          style: !playerHasReadyUnits &&
                   match.activeFaction == Faction.player &&
                   !match.isFinished
               ? FilledButton.styleFrom(
@@ -531,14 +532,14 @@ class _TopBattleBar extends StatelessWidget {
               ? game.endTurn
               : null,
           icon: Icon(
-            readyPlayerUnits == 0 &&
+            !playerHasReadyUnits &&
                     match.activeFaction == Faction.player &&
                     !match.isFinished
                 ? Icons.play_arrow_rounded
                 : Icons.skip_next_rounded,
           ),
           label: Text(
-            readyPlayerUnits == 0 &&
+            !playerHasReadyUnits &&
                     match.activeFaction == Faction.player &&
                     !match.isFinished
                 ? 'End turn now'
