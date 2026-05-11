@@ -409,14 +409,11 @@ class _TopBattleBar extends StatelessWidget {
     final enemyIncome = match.incomeFor(Faction.enemy);
     final playerMines = match.mineCountFor(Faction.player);
     final enemyMines = match.mineCountFor(Faction.enemy);
-    final hasBarracks = match.hasActiveBarracks(Faction.player);
-    final barracksBlocked = match.isBarracksBlocked(Faction.player);
     final canRecruitScout = match.canRecruitUnit(Faction.player, UnitType.scout);
     final canRecruitTank = match.canRecruitUnit(Faction.player, UnitType.tank);
     final canEndTurn = match.canEndTurn(Faction.player);
     final shouldHighlightEndTurn = match.shouldHighlightEndTurn(Faction.player);
     final readyPlayerUnits = match.readyUnitCountFor(Faction.player);
-    final playerHasReadyUnits = match.hasReadyUnits(Faction.player);
     final playerHq = match.headquartersBuildingFor(Faction.player);
     final enemyHq = match.headquartersBuildingFor(Faction.enemy);
 
@@ -483,9 +480,9 @@ class _TopBattleBar extends StatelessWidget {
           ),
         if (shouldHighlightEndTurn)
           const Chip(label: Text('No ready units, end turn')),
-        if (!hasBarracks && !match.isFinished)
+        if (!match.hasActiveBarracks(Faction.player) && !match.isFinished)
           const Chip(label: Text('Barracks destroyed')),
-        if (barracksBlocked && !match.isFinished)
+        if (match.isBarracksBlocked(Faction.player) && !match.isFinished)
           const Chip(label: Text('Barracks blocked')),
         if (match.statusMessage case final status?)
           Chip(label: Text(status)),
