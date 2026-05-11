@@ -150,6 +150,9 @@ void main() {
     expect(state.canRecruitUnit(Faction.enemy, UnitType.scout), isFalse);
     expect(state.recruitLabelFor(Faction.player, UnitType.scout), 'Scout 3');
 
+    final enemyTurn = state.copyWith(activeFaction: Faction.enemy);
+    expect(enemyTurn.recruitLabelFor(Faction.player, UnitType.scout), 'Enemy turn');
+
     final lowCredits = state.copyWith(playerCredits: 2);
     expect(lowCredits.canRecruitUnit(Faction.player, UnitType.scout), isFalse);
     expect(lowCredits.recruitLabelFor(Faction.player, UnitType.scout), 'Scout needs 3');
@@ -199,6 +202,7 @@ void main() {
 
     final finished = state.copyWith(winner: Faction.player);
     expect(finished.canEndTurn(Faction.player), isFalse);
+    expect(finished.recruitLabelFor(Faction.player, UnitType.scout), 'Match over');
 
     final spentPlayerTurn = state.copyWith(
       units: state.units

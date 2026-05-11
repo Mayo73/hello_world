@@ -96,6 +96,12 @@ class SkirmishMatchState {
     if (canRecruitUnit(faction, unitType)) {
       return '$unitName ${unitType.recruitCost}';
     }
+    if (isFinished) {
+      return 'Match over';
+    }
+    if (activeFaction != faction) {
+      return 'Enemy turn';
+    }
     if (!hasActiveBarracks(faction)) {
       return 'No barracks';
     }
