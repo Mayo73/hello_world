@@ -158,6 +158,10 @@ void main() {
     expect(find.text('HP 7/7'), findsOneWidget);
     expect(find.text('Production building'), findsOneWidget);
     expect(find.text('Deploys Scout, Tank'), findsOneWidget);
+    expect(
+      find.textContaining('New scouts and tanks deploy on adjacent free tiles'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('selected HQ panel shows critical target effect', (
@@ -176,6 +180,9 @@ void main() {
     expect(find.textContaining('Commander HQ'), findsOneWidget);
     expect(find.text('HP 10/10'), findsOneWidget);
     expect(find.text('Critical target'), findsOneWidget);
-    expect(find.textContaining('Lose this and the match ends'), findsOneWidget);
+    expect(
+      find.textContaining('Protect it while opening a path to the enemy HQ'),
+      findsOneWidget,
+    );
   });
 }
