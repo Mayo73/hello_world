@@ -112,6 +112,10 @@ void main() {
     expect(find.text('HP 3/3'), findsOneWidget);
     expect(find.text('Move 2 AP'), findsOneWidget);
     expect(find.text('ATK 1'), findsOneWidget);
+    expect(
+      find.textContaining('Fast skirmisher. Best for flanks'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('selected building panel shows structure effects', (
@@ -131,6 +135,10 @@ void main() {
     expect(find.text('HP 6/6'), findsOneWidget);
     expect(find.text('Economic node'), findsOneWidget);
     expect(find.text('Income +1'), findsOneWidget);
+    expect(
+      find.textContaining('Each surviving mine adds +1 income every turn'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('selected barracks panel shows production effect', (
