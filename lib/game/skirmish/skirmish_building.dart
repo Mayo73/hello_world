@@ -19,16 +19,7 @@ class SkirmishBuilding {
 
   bool get isDestroyed => health <= 0;
 
-  int get maxHealth {
-    switch (type) {
-      case BuildingType.headquarters:
-        return 10;
-      case BuildingType.mine:
-        return 6;
-      case BuildingType.barracks:
-        return 7;
-    }
-  }
+  int get maxHealth => type.maxHealth;
 
   SkirmishBuilding copyWith({int? health}) {
     return SkirmishBuilding(

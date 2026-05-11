@@ -11,4 +11,15 @@ extension BuildingTypeLabels on BuildingType {
         return 'Barracks';
     }
   }
+
+  int get maxHealth {
+    switch (this) {
+      case BuildingType.headquarters:
+        return 10;
+      case BuildingType.mine:
+        return 6;
+      case BuildingType.barracks:
+        return 7;
+    }
+  }
 }

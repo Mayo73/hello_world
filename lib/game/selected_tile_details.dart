@@ -53,12 +53,7 @@ class SelectedTileDetails {
       buildingOwner: buildingOwner,
       buildingType: buildingType,
       buildingHealth: buildingHealth,
-      buildingMaxHealth: switch (buildingType) {
-        BuildingType.headquarters => 10,
-        BuildingType.mine => 6,
-        BuildingType.barracks => 7,
-        null => null,
-      },
+      buildingMaxHealth: buildingType?.maxHealth,
       buildingEffectText: switch (buildingType) {
         BuildingType.headquarters => 'Critical target',
         BuildingType.mine => 'Economic node',

@@ -43,7 +43,7 @@ void main() {
     expect(details.hasInspectableTarget, isTrue);
     expect(details.buildingType, BuildingType.headquarters);
     expect(details.buildingHealth, 8);
-    expect(details.buildingMaxHealth, 10);
+    expect(details.buildingMaxHealth, BuildingType.headquarters.maxHealth);
     expect(details.buildingEffectText, 'Critical target');
     expect(details.buildingIncomeBonus, isNull);
     expect(details.buildingSpawnLabel, isNull);
