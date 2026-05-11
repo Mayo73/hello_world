@@ -79,6 +79,22 @@ void main() {
     expect(find.textContaining('Tank deployed near the barracks.'), findsOneWidget);
   });
 
+  testWidgets('end turn switches battle bar to enemy-turn messaging', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(MyApp(seedFactory: () => 101));
+    await tester.pump();
+
+    await tester.tap(find.text('End turn'));
+    await tester.pump();
+
+    expect(find.text('Enemy turn'), findsOneWidget);
+    expect(find.text('Scout blocked'), findsOneWidget);
+    expect(find.text('Tank blocked'), findsOneWidget);
+    expect(find.textContaining('enemy gained +3'), findsOneWidget);
+    expect(find.text('End turn'), findsOneWidget);
+  });
+
   testWidgets('selected unit panel shows combat and movement stats', (
     WidgetTester tester,
   ) async {
