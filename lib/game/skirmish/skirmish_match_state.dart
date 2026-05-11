@@ -91,6 +91,8 @@ class SkirmishMatchState {
         creditsFor(faction) >= unitType.recruitCost;
   }
 
+  bool canEndTurn(Faction faction) => activeFaction == faction && !isFinished;
+
   SkirmishMatchState copyWith({
     int? playerCredits,
     int? enemyCredits,

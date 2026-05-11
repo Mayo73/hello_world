@@ -413,6 +413,7 @@ class _TopBattleBar extends StatelessWidget {
     final barracksBlocked = match.isBarracksBlocked(Faction.player);
     final canRecruitScout = match.canRecruitUnit(Faction.player, UnitType.scout);
     final canRecruitTank = match.canRecruitUnit(Faction.player, UnitType.tank);
+    final canEndTurn = match.canEndTurn(Faction.player);
     final readyPlayerUnits = match.readyUnitCountFor(Faction.player);
     final playerHasReadyUnits = match.hasReadyUnits(Faction.player);
     final playerHq = match.headquartersBuildingFor(Faction.player);
@@ -479,9 +480,7 @@ class _TopBattleBar extends StatelessWidget {
               'Selected ${selectedUnit.type.displayName} ${selectedUnit.health}/${selectedUnit.maxHealth} • Move ${selectedUnit.movementRange} AP • ATK ${selectedUnit.attack} • ${selectedUnit.hasActed ? 'Spent' : 'Ready'}',
             ),
           ),
-        if (!playerHasReadyUnits &&
-            match.activeFaction == Faction.player &&
-            !match.isFinished)
+        if (!playerHasReadyUnits && canEndTurn)
           const Chip(label: Text('No ready units, end turn')),
         if (!hasBarracks && !match.isFinished)
           const Chip(label: Text('Barracks destroyed')),
@@ -520,28 +519,20 @@ class _TopBattleBar extends StatelessWidget {
           ),
         ),
         FilledButton.icon(
-          style: !playerHasReadyUnits &&
-                  match.activeFaction == Faction.player &&
-                  !match.isFinished
+          style: !playerHasReadyUnits && canEndTurn
               ? FilledButton.styleFrom(
                   backgroundColor: const Color(0xFFE0A93B),
                   foregroundColor: const Color(0xFF1A1304),
                 )
               : null,
-          onPressed: match.activeFaction == Faction.player && !match.isFinished
-              ? game.endTurn
-              : null,
+          onPressed: canEndTurn ? game.endTurn : null,
           icon: Icon(
-            !playerHasReadyUnits &&
-                    match.activeFaction == Faction.player &&
-                    !match.isFinished
+            !playerHasReadyUnits && canEndTurn
                 ? Icons.play_arrow_rounded
                 : Icons.skip_next_rounded,
           ),
           label: Text(
-            !playerHasReadyUnits &&
-                    match.activeFaction == Faction.player &&
-                    !match.isFinished
+            !playerHasReadyUnits && canEndTurn
                 ? 'End turn now'
                 : 'End turn',
           ),

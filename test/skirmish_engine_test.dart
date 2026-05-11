@@ -182,6 +182,20 @@ void main() {
     expect(blockedState.canRecruitUnit(Faction.player, UnitType.scout), isFalse);
   });
 
+  test('end-turn availability reflects active faction and finished matches', () {
+    final state = engine.createInitialState(map);
+
+    expect(state.canEndTurn(Faction.player), isTrue);
+    expect(state.canEndTurn(Faction.enemy), isFalse);
+
+    final enemyTurn = state.copyWith(activeFaction: Faction.enemy);
+    expect(enemyTurn.canEndTurn(Faction.player), isFalse);
+    expect(enemyTurn.canEndTurn(Faction.enemy), isTrue);
+
+    final finished = state.copyWith(winner: Faction.player);
+    expect(finished.canEndTurn(Faction.player), isFalse);
+  });
+
   test('ending turn returns control to player and advances round', () {
     final state = engine.createInitialState(map);
     final next = engine.endTurn(state, map);
