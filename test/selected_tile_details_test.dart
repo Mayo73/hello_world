@@ -44,7 +44,7 @@ void main() {
     expect(details.buildingType, BuildingType.headquarters);
     expect(details.buildingHealth, 8);
     expect(details.buildingMaxHealth, BuildingType.headquarters.maxHealth);
-    expect(details.buildingEffectText, 'Critical target');
+    expect(details.buildingEffectText, BuildingType.headquarters.effectText);
     expect(details.buildingIncomeBonus, isNull);
     expect(details.buildingSpawnLabel, isNull);
     expect(details.movementText, '1 AP');
@@ -101,6 +101,41 @@ void main() {
     expect(details.unitMaxHealth, UnitType.scout.maxHealth);
     expect(details.unitMoveAp, UnitType.scout.movementAp);
     expect(details.unitReady, isTrue);
+  });
+
+  test('fromTile derives mine and barracks building descriptors from building type', () {
+    final mineTile = WorldTile(
+      coord: const HexCoord(2, 2),
+      biome: TileBiome.plains,
+      isPassable: true,
+      movementCost: 1,
+    );
+    final barracksTile = WorldTile(
+      coord: const HexCoord(4, 4),
+      biome: TileBiome.plains,
+      isPassable: true,
+      movementCost: 1,
+    );
+
+    final mineDetails = SelectedTileDetails.fromTile(
+      mineTile,
+      buildingOwner: Faction.player,
+      buildingType: BuildingType.mine,
+      buildingHealth: 6,
+    );
+    final barracksDetails = SelectedTileDetails.fromTile(
+      barracksTile,
+      buildingOwner: Faction.player,
+      buildingType: BuildingType.barracks,
+      buildingHealth: 7,
+    );
+
+    expect(mineDetails.buildingEffectText, BuildingType.mine.effectText);
+    expect(mineDetails.buildingIncomeBonus, BuildingType.mine.incomeBonus);
+    expect(mineDetails.buildingSpawnLabel, isNull);
+    expect(barracksDetails.buildingEffectText, BuildingType.barracks.effectText);
+    expect(barracksDetails.buildingIncomeBonus, isNull);
+    expect(barracksDetails.buildingSpawnLabel, BuildingType.barracks.spawnLabel);
   });
 
   test('value equality reflects derived tile details', () {

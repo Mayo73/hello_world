@@ -54,16 +54,9 @@ class SelectedTileDetails {
       buildingType: buildingType,
       buildingHealth: buildingHealth,
       buildingMaxHealth: buildingType?.maxHealth,
-      buildingEffectText: switch (buildingType) {
-        BuildingType.headquarters => 'Critical target',
-        BuildingType.mine => 'Economic node',
-        BuildingType.barracks => 'Production building',
-        null => null,
-      },
-      buildingIncomeBonus:
-          buildingType == BuildingType.mine ? 1 : null,
-      buildingSpawnLabel:
-          buildingType == BuildingType.barracks ? 'Scout, Tank' : null,
+      buildingEffectText: buildingType?.effectText,
+      buildingIncomeBonus: buildingType?.incomeBonus,
+      buildingSpawnLabel: buildingType?.spawnLabel,
     );
   }
 

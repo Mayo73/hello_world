@@ -22,4 +22,19 @@ extension BuildingTypeLabels on BuildingType {
         return 7;
     }
   }
+
+  String get effectText {
+    switch (this) {
+      case BuildingType.headquarters:
+        return 'Critical target';
+      case BuildingType.mine:
+        return 'Economic node';
+      case BuildingType.barracks:
+        return 'Production building';
+    }
+  }
+
+  int? get incomeBonus => this == BuildingType.mine ? 1 : null;
+
+  String? get spawnLabel => this == BuildingType.barracks ? 'Scout, Tank' : null;
 }
