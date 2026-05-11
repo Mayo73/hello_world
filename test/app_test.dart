@@ -33,6 +33,10 @@ void main() {
     expect(find.text('Mines 1'), findsOneWidget);
     expect(find.text('Enemy +3'), findsOneWidget);
     expect(find.text('Enemy mines 1'), findsOneWidget);
+    expect(find.text('Scout 3'), findsOneWidget);
+    expect(find.text('Tank 5'), findsOneWidget);
+    expect(find.text('End turn'), findsOneWidget);
+    expect(find.text('No ready units, end turn'), findsNothing);
     expect(find.textContaining('Tippe auf ein Feld'), findsNothing);
     expect(find.textContaining('Mines raise your income each turn'), findsNothing);
 
