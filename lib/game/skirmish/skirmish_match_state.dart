@@ -93,6 +93,9 @@ class SkirmishMatchState {
 
   bool canEndTurn(Faction faction) => activeFaction == faction && !isFinished;
 
+  bool shouldHighlightEndTurn(Faction faction) =>
+      canEndTurn(faction) && !hasReadyUnits(faction);
+
   SkirmishMatchState copyWith({
     int? playerCredits,
     int? enemyCredits,

@@ -414,6 +414,7 @@ class _TopBattleBar extends StatelessWidget {
     final canRecruitScout = match.canRecruitUnit(Faction.player, UnitType.scout);
     final canRecruitTank = match.canRecruitUnit(Faction.player, UnitType.tank);
     final canEndTurn = match.canEndTurn(Faction.player);
+    final shouldHighlightEndTurn = match.shouldHighlightEndTurn(Faction.player);
     final readyPlayerUnits = match.readyUnitCountFor(Faction.player);
     final playerHasReadyUnits = match.hasReadyUnits(Faction.player);
     final playerHq = match.headquartersBuildingFor(Faction.player);
@@ -480,7 +481,7 @@ class _TopBattleBar extends StatelessWidget {
               'Selected ${selectedUnit.type.displayName} ${selectedUnit.health}/${selectedUnit.maxHealth} • Move ${selectedUnit.movementRange} AP • ATK ${selectedUnit.attack} • ${selectedUnit.hasActed ? 'Spent' : 'Ready'}',
             ),
           ),
-        if (!playerHasReadyUnits && canEndTurn)
+        if (shouldHighlightEndTurn)
           const Chip(label: Text('No ready units, end turn')),
         if (!hasBarracks && !match.isFinished)
           const Chip(label: Text('Barracks destroyed')),
@@ -519,7 +520,7 @@ class _TopBattleBar extends StatelessWidget {
           ),
         ),
         FilledButton.icon(
-          style: !playerHasReadyUnits && canEndTurn
+          style: shouldHighlightEndTurn
               ? FilledButton.styleFrom(
                   backgroundColor: const Color(0xFFE0A93B),
                   foregroundColor: const Color(0xFF1A1304),
@@ -527,12 +528,12 @@ class _TopBattleBar extends StatelessWidget {
               : null,
           onPressed: canEndTurn ? game.endTurn : null,
           icon: Icon(
-            !playerHasReadyUnits && canEndTurn
+            shouldHighlightEndTurn
                 ? Icons.play_arrow_rounded
                 : Icons.skip_next_rounded,
           ),
           label: Text(
-            !playerHasReadyUnits && canEndTurn
+            shouldHighlightEndTurn
                 ? 'End turn now'
                 : 'End turn',
           ),

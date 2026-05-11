@@ -187,6 +187,7 @@ void main() {
 
     expect(state.canEndTurn(Faction.player), isTrue);
     expect(state.canEndTurn(Faction.enemy), isFalse);
+    expect(state.shouldHighlightEndTurn(Faction.player), isFalse);
 
     final enemyTurn = state.copyWith(activeFaction: Faction.enemy);
     expect(enemyTurn.canEndTurn(Faction.player), isFalse);
@@ -194,6 +195,15 @@ void main() {
 
     final finished = state.copyWith(winner: Faction.player);
     expect(finished.canEndTurn(Faction.player), isFalse);
+
+    final spentPlayerTurn = state.copyWith(
+      units: state.units
+          .map((unit) => unit.owner == Faction.player
+              ? unit.copyWith(hasActed: true)
+              : unit)
+          .toList(growable: false),
+    );
+    expect(spentPlayerTurn.shouldHighlightEndTurn(Faction.player), isTrue);
   });
 
   test('ending turn returns control to player and advances round', () {
