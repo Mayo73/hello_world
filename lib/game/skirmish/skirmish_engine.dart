@@ -320,7 +320,7 @@ class SkirmishEngine {
       return state;
     }
 
-    final cost = nextType == UnitType.tank ? tankCost : scoutCost;
+    final cost = nextType.recruitCost;
     final nextId = 'enemy-${nextType.name}-${state.units.length + 1}';
     return state.copyWith(
       enemyCredits: state.enemyCredits - cost,
@@ -341,7 +341,7 @@ class SkirmishEngine {
   }
 
   UnitType? _chooseEnemyRecruitType(SkirmishMatchState state) {
-    if (state.enemyCredits < scoutCost) {
+    if (state.enemyCredits < UnitType.scout.recruitCost) {
       return null;
     }
 
@@ -357,21 +357,23 @@ class SkirmishEngine {
             unit.coord.distanceTo(state.headquartersOf(Faction.enemy)!) <= 4)
         .length;
 
-    if (state.enemyCredits >= tankCost &&
+    if (state.enemyCredits >= UnitType.tank.recruitCost &&
         enemyTanks == 0 &&
         playerFrontlinePressure == 0) {
       return UnitType.tank;
     }
 
-    if (playerUnits > enemyUnits && state.enemyCredits >= scoutCost) {
+    if (playerUnits > enemyUnits &&
+        state.enemyCredits >= UnitType.scout.recruitCost) {
       return UnitType.scout;
     }
 
-    if (playerFrontlinePressure >= 2 && state.enemyCredits >= scoutCost) {
+    if (playerFrontlinePressure >= 2 &&
+        state.enemyCredits >= UnitType.scout.recruitCost) {
       return UnitType.scout;
     }
 
-    if (state.enemyCredits >= tankCost) {
+    if (state.enemyCredits >= UnitType.tank.recruitCost) {
       return UnitType.tank;
     }
 
