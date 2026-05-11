@@ -58,6 +58,10 @@ class GameHudController extends ChangeNotifier {
   }
 
   void updateMatchState(SkirmishMatchState state) {
+    if (identical(_matchState, state)) {
+      return;
+    }
+
     _matchState = state;
     notifyListeners();
   }

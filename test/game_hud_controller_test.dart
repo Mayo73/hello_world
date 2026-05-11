@@ -77,7 +77,7 @@ void main() {
     expect(selected?.movementText, '2 AP');
   });
 
-  test('updateMatchState stores the latest skirmish state and notifies', () {
+  test('updateMatchState stores the latest skirmish state and only notifies on change', () {
     final controller = GameHudController();
     var notifications = 0;
     controller.addListener(() => notifications++);
@@ -92,6 +92,7 @@ void main() {
       statusMessage: 'Enemy turn in progress',
     );
 
+    controller.updateMatchState(state);
     controller.updateMatchState(state);
 
     expect(controller.matchState, same(state));
