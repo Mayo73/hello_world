@@ -74,10 +74,33 @@ void main() {
     expect(details.unitMaxHealth, 5);
     expect(details.unitReady, isFalse);
     expect(details.unitAttack, 2);
-    expect(details.unitMoveAp, 1);
+    expect(details.unitMoveAp, UnitType.tank.movementAp);
     expect(details.buildingType, isNull);
     expect(details.movementText, '2 AP');
     expect(details.passabilityText, 'Passierbar');
+  });
+
+  test('fromTile derives scout movement from centralized unit rule', () {
+    final tile = WorldTile(
+      coord: const HexCoord(3, 6),
+      biome: TileBiome.plains,
+      isPassable: true,
+      movementCost: 1,
+    );
+
+    final details = SelectedTileDetails.fromTile(
+      tile,
+      unitOwner: Faction.player,
+      unitType: UnitType.scout,
+      unitHealth: 3,
+      unitReady: true,
+    );
+
+    expect(details.unitType, UnitType.scout);
+    expect(details.unitAttack, UnitType.scout.attack);
+    expect(details.unitMaxHealth, UnitType.scout.maxHealth);
+    expect(details.unitMoveAp, UnitType.scout.movementAp);
+    expect(details.unitReady, isTrue);
   });
 
   test('value equality reflects derived tile details', () {
