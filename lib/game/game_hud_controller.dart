@@ -44,7 +44,7 @@ class GameHudController extends ChangeNotifier {
     BuildingType? buildingType,
     int? buildingHealth,
   }) {
-    _selectedTile = SelectedTileDetails.fromTile(
+    final nextSelectedTile = SelectedTileDetails.fromTile(
       tile,
       unitOwner: unitOwner,
       unitType: unitType,
@@ -54,6 +54,11 @@ class GameHudController extends ChangeNotifier {
       buildingType: buildingType,
       buildingHealth: buildingHealth,
     );
+    if (_selectedTile == nextSelectedTile) {
+      return;
+    }
+
+    _selectedTile = nextSelectedTile;
     notifyListeners();
   }
 

@@ -92,4 +92,50 @@ class SelectedTileDetails {
   final String? buildingSpawnLabel;
 
   bool get hasInspectableTarget => unitType != null || buildingType != null;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is SelectedTileDetails &&
+        other.coord == coord &&
+        other.biomeName == biomeName &&
+        other.movementText == movementText &&
+        other.passabilityText == passabilityText &&
+        other.unitOwner == unitOwner &&
+        other.unitType == unitType &&
+        other.unitHealth == unitHealth &&
+        other.unitMaxHealth == unitMaxHealth &&
+        other.unitReady == unitReady &&
+        other.unitAttack == unitAttack &&
+        other.unitMoveAp == unitMoveAp &&
+        other.buildingOwner == buildingOwner &&
+        other.buildingType == buildingType &&
+        other.buildingHealth == buildingHealth &&
+        other.buildingMaxHealth == buildingMaxHealth &&
+        other.buildingEffectText == buildingEffectText &&
+        other.buildingIncomeBonus == buildingIncomeBonus &&
+        other.buildingSpawnLabel == buildingSpawnLabel;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    coord,
+    biomeName,
+    movementText,
+    passabilityText,
+    unitOwner,
+    unitType,
+    unitHealth,
+    unitMaxHealth,
+    unitReady,
+    unitAttack,
+    unitMoveAp,
+    buildingOwner,
+    buildingType,
+    buildingHealth,
+    buildingMaxHealth,
+    buildingEffectText,
+    buildingIncomeBonus,
+    buildingSpawnLabel,
+  );
 }

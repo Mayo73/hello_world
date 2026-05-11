@@ -77,6 +77,42 @@ void main() {
     expect(selected?.movementText, '2 AP');
   });
 
+  test('updateSelectedTile only notifies when derived details change', () {
+    final controller = GameHudController();
+    var notifications = 0;
+    controller.addListener(() => notifications++);
+    final tile = WorldTile(
+      coord: const HexCoord(4, 5),
+      biome: TileBiome.forest,
+      isPassable: true,
+      movementCost: 2,
+    );
+
+    controller.updateSelectedTile(
+      tile,
+      unitOwner: Faction.player,
+      unitType: UnitType.scout,
+      unitHealth: 2,
+      unitReady: true,
+    );
+    controller.updateSelectedTile(
+      tile,
+      unitOwner: Faction.player,
+      unitType: UnitType.scout,
+      unitHealth: 2,
+      unitReady: true,
+    );
+    controller.updateSelectedTile(
+      tile,
+      unitOwner: Faction.player,
+      unitType: UnitType.scout,
+      unitHealth: 1,
+      unitReady: false,
+    );
+
+    expect(notifications, 2);
+  });
+
   test('updateMatchState stores the latest skirmish state and only notifies on change', () {
     final controller = GameHudController();
     var notifications = 0;
