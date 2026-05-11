@@ -49,7 +49,7 @@ class SelectedTileDetails {
       unitMaxHealth: unitType?.maxHealth,
       unitReady: unitReady,
       unitAttack: unitType?.attack,
-      unitMoveAp: unitType == null ? null : (unitType == UnitType.scout ? 2 : 1),
+      unitMoveAp: unitType?.movementAp,
       buildingOwner: buildingOwner,
       buildingType: buildingType,
       buildingHealth: buildingHealth,

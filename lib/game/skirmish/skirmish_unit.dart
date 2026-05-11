@@ -21,7 +21,7 @@ class SkirmishUnit {
 
   bool get isDestroyed => health <= 0;
 
-  int get movementRange => type == UnitType.scout ? 2 : 1;
+  int get movementRange => type.movementAp;
 
   int get attack => type.attack;
 
