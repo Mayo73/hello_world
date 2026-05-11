@@ -70,8 +70,8 @@ void main() {
     final selected = controller.selectedTile;
     expect(selected, isNotNull);
     expect(selected?.unitType, UnitType.scout);
-    expect(selected?.unitMoveAp, 2);
-    expect(selected?.unitAttack, 1);
+    expect(selected?.unitMoveAp, UnitType.scout.movementAp);
+    expect(selected?.unitAttack, UnitType.scout.attack);
     expect(selected?.buildingType, BuildingType.mine);
     expect(selected?.buildingIncomeBonus, 1);
     expect(selected?.movementText, '2 AP');
