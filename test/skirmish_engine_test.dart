@@ -58,6 +58,8 @@ void main() {
   test('ready unit count tracks spent units per faction', () {
     final state = engine.createInitialState(map);
 
+    expect(state.unitCountFor(Faction.player), 1);
+    expect(state.unitCountFor(Faction.enemy), 1);
     expect(state.readyUnitCountFor(Faction.player), 1);
     expect(state.readyUnitCountFor(Faction.enemy), 1);
 
@@ -69,8 +71,29 @@ void main() {
           .toList(growable: false),
     );
 
+    expect(spentPlayerScout.unitCountFor(Faction.player), 1);
     expect(spentPlayerScout.readyUnitCountFor(Faction.player), 0);
     expect(spentPlayerScout.readyUnitCountFor(Faction.enemy), 1);
+  });
+
+  test('headquarters helper ignores destroyed HQs', () {
+    final state = engine.createInitialState(map);
+    final enemyHq = state.headquartersBuildingFor(Faction.enemy);
+
+    expect(state.headquartersBuildingFor(Faction.player)?.id, 'player-hq');
+    expect(enemyHq, isNotNull);
+    expect(state.headquartersOf(Faction.enemy), enemyHq?.coord);
+
+    final destroyedEnemyHq = state.copyWith(
+      buildings: state.buildings
+          .map((building) => building.id == 'enemy-hq'
+              ? building.copyWith(health: 0)
+              : building)
+          .toList(growable: false),
+    );
+
+    expect(destroyedEnemyHq.headquartersBuildingFor(Faction.enemy), isNull);
+    expect(destroyedEnemyHq.headquartersOf(Faction.enemy), isNull);
   });
 
   test('player recruitment fails cleanly when barracks is destroyed', () {

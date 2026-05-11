@@ -402,8 +402,8 @@ class _TopBattleBar extends StatelessWidget {
     final match = controller.matchState;
     if (match == null) return const SizedBox.shrink();
 
-    final playerUnits = match.unitsFor(Faction.player).length;
-    final enemyUnits = match.unitsFor(Faction.enemy).length;
+    final playerUnits = match.unitCountFor(Faction.player);
+    final enemyUnits = match.unitCountFor(Faction.enemy);
     final selectedUnit = match.selectedUnit;
     final playerIncome = match.incomeFor(Faction.player);
     final enemyIncome = match.incomeFor(Faction.enemy);
@@ -414,18 +414,8 @@ class _TopBattleBar extends StatelessWidget {
     final canRecruitScout = match.canRecruitUnit(Faction.player, UnitType.scout);
     final canRecruitTank = match.canRecruitUnit(Faction.player, UnitType.tank);
     final readyPlayerUnits = match.readyUnitCountFor(Faction.player);
-    final playerHq = match.buildings.where(
-      (building) =>
-          building.owner == Faction.player &&
-          building.type == BuildingType.headquarters &&
-          !building.isDestroyed,
-    ).firstOrNull;
-    final enemyHq = match.buildings.where(
-      (building) =>
-          building.owner == Faction.enemy &&
-          building.type == BuildingType.headquarters &&
-          !building.isDestroyed,
-    ).firstOrNull;
+    final playerHq = match.headquartersBuildingFor(Faction.player);
+    final enemyHq = match.headquartersBuildingFor(Faction.enemy);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

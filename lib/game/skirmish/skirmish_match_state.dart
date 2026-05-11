@@ -47,6 +47,8 @@ class SkirmishMatchState {
   Iterable<SkirmishUnit> unitsFor(Faction faction) =>
       units.where((unit) => unit.owner == faction && !unit.isDestroyed);
 
+  int unitCountFor(Faction faction) => unitsFor(faction).length;
+
   int mineCountFor(Faction faction) =>
       buildingsFor(faction)
           .where((building) => building.type == BuildingType.mine)
@@ -115,14 +117,16 @@ class SkirmishMatchState {
     );
   }
 
-  HexCoord? headquartersOf(Faction faction) {
+  SkirmishBuilding? headquartersBuildingFor(Faction faction) {
     for (final building in buildings) {
       if (building.owner == faction &&
           building.type == BuildingType.headquarters &&
           !building.isDestroyed) {
-        return building.coord;
+        return building;
       }
     }
     return null;
   }
+
+  HexCoord? headquartersOf(Faction faction) => headquartersBuildingFor(faction)?.coord;
 }
