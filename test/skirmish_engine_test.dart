@@ -241,10 +241,11 @@ void main() {
     final recruitedTank = next.units.firstWhere(
       (unit) => unit.owner == Faction.enemy && unit.type == UnitType.tank,
     );
+    final expectedEnemyIncome = state.incomeFor(Faction.enemy);
 
     expect(recruitedTank.hasActed, isTrue);
-    expect(next.enemyCredits, 3);
-    expect(next.statusMessage, contains('enemy gained +3'));
+    expect(next.enemyCredits, expectedEnemyIncome);
+    expect(next.statusMessage, contains('enemy gained +$expectedEnemyIncome'));
   });
 
   test('enemy scout uses full movement range on open ground', () {
