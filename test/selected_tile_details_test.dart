@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hello_world/game/selected_tile_details.dart';
 import 'package:hello_world/game/skirmish/building_type.dart';
 import 'package:hello_world/game/skirmish/faction.dart';
+import 'package:hello_world/game/skirmish/unit_type.dart';
 import 'package:hello_world/game/world/hex_coord.dart';
 import 'package:hello_world/game/world/tile_biome.dart';
 import 'package:hello_world/game/world/world_tile.dart';
