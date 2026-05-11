@@ -37,4 +37,15 @@ extension BuildingTypeLabels on BuildingType {
   int? get incomeBonus => this == BuildingType.mine ? 1 : null;
 
   String? get spawnLabel => this == BuildingType.barracks ? 'Scout, Tank' : null;
+
+  String get tacticalHint {
+    switch (this) {
+      case BuildingType.headquarters:
+        return 'Lose this and the match ends. Protect it while opening a path to the enemy HQ.';
+      case BuildingType.mine:
+        return 'Economic node. Each surviving mine adds +1 income every turn.';
+      case BuildingType.barracks:
+        return 'Production building. New scouts and tanks deploy on adjacent free tiles.';
+    }
+  }
 }

@@ -10,4 +10,8 @@ extension UnitTypeLabels on UnitType {
   int get maxHealth => this == UnitType.scout ? 3 : 5;
 
   int get movementAp => this == UnitType.scout ? 2 : 1;
+
+  String get tacticalHint => this == UnitType.scout
+      ? 'Fast skirmisher. Best for flanks, screening, and finishing weakened targets.'
+      : 'Slow heavy unit. Stronger hit, better for breaking lines and HQ pressure.';
 }

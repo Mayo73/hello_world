@@ -357,19 +357,12 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   String _selectionHint(SelectedTileDetails selectedTile) {
-    if (selectedTile.unitType != null) {
-      return switch (selectedTile.unitType!) {
-        UnitType.scout => 'Fast skirmisher. Best for flanks, screening, and finishing weakened targets.',
-        UnitType.tank => 'Slow heavy unit. Stronger hit, better for breaking lines and HQ pressure.',
-      };
+    if (selectedTile.unitType case final unitType?) {
+      return unitType.tacticalHint;
     }
 
-    if (selectedTile.buildingType != null) {
-      return switch (selectedTile.buildingType!) {
-        BuildingType.headquarters => 'Lose this and the match ends. Protect it while opening a path to the enemy HQ.',
-        BuildingType.mine => 'Economic node. Each surviving mine adds +1 income every turn.',
-        BuildingType.barracks => 'Production building. New scouts and tanks deploy on adjacent free tiles.',
-      };
+    if (selectedTile.buildingType case final buildingType?) {
+      return buildingType.tacticalHint;
     }
 
     return 'No tactical detail available.';
