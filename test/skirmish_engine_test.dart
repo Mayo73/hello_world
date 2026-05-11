@@ -230,6 +230,23 @@ void main() {
     expect(next.statusMessage, contains('enemy gained +3'));
   });
 
+  test('enemy recruitment spends centralized unit cost', () {
+    final state = engine.createInitialState(map).copyWith(
+      playerCredits: 0,
+      enemyCredits: UnitType.tank.recruitCost,
+      units: const [],
+    );
+
+    final next = engine.endTurn(state, map);
+    final recruitedTank = next.units.firstWhere(
+      (unit) => unit.owner == Faction.enemy && unit.type == UnitType.tank,
+    );
+
+    expect(recruitedTank.hasActed, isTrue);
+    expect(next.enemyCredits, 3);
+    expect(next.statusMessage, contains('enemy gained +3'));
+  });
+
   test('enemy scout uses full movement range on open ground', () {
     final simpleMap = WorldMapData(
       width: 7,
