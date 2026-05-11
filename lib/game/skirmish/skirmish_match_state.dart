@@ -91,6 +91,20 @@ class SkirmishMatchState {
         creditsFor(faction) >= unitType.recruitCost;
   }
 
+  String recruitLabelFor(Faction faction, UnitType unitType) {
+    final unitName = unitType.displayName;
+    if (canRecruitUnit(faction, unitType)) {
+      return '$unitName ${unitType.recruitCost}';
+    }
+    if (!hasActiveBarracks(faction)) {
+      return 'No barracks';
+    }
+    if (isBarracksBlocked(faction)) {
+      return '$unitName blocked';
+    }
+    return '$unitName needs ${unitType.recruitCost}';
+  }
+
   bool canEndTurn(Faction faction) => activeFaction == faction && !isFinished;
 
   bool shouldHighlightEndTurn(Faction faction) =>

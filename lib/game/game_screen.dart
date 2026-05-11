@@ -494,30 +494,14 @@ class _TopBattleBar extends StatelessWidget {
               ? () => game.recruitUnit(UnitType.scout)
               : null,
           icon: const Icon(Icons.directions_run_rounded),
-          label: Text(
-            canRecruitScout
-                ? 'Scout ${UnitType.scout.recruitCost}'
-                : !hasBarracks
-                    ? 'No barracks'
-                    : barracksBlocked
-                        ? 'Scout blocked'
-                        : 'Scout needs ${UnitType.scout.recruitCost}',
-          ),
+          label: Text(match.recruitLabelFor(Faction.player, UnitType.scout)),
         ),
         FilledButton.tonalIcon(
           onPressed: canRecruitTank
               ? () => game.recruitUnit(UnitType.tank)
               : null,
           icon: const Icon(Icons.shield_rounded),
-          label: Text(
-            canRecruitTank
-                ? 'Tank ${UnitType.tank.recruitCost}'
-                : !hasBarracks
-                    ? 'No barracks'
-                    : barracksBlocked
-                        ? 'Tank blocked'
-                        : 'Tank needs ${UnitType.tank.recruitCost}',
-          ),
+          label: Text(match.recruitLabelFor(Faction.player, UnitType.tank)),
         ),
         FilledButton.icon(
           style: shouldHighlightEndTurn
