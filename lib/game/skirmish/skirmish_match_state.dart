@@ -3,6 +3,7 @@ import 'building_type.dart';
 import 'faction.dart';
 import 'skirmish_building.dart';
 import 'skirmish_unit.dart';
+import 'unit_type.dart';
 
 class SkirmishMatchState {
   const SkirmishMatchState({
